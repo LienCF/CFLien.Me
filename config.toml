@@ -1,10 +1,8 @@
 baseURL = "https://cflien.me/"
-theme="hugo-coder"
+theme = "hugo-coder"
+googleAnalytics = "G-75TS27309M"
 
 defaultContentLanguage = "zh-tw"
-
-[params.googleTagManager]
-    id = "G-75TS27309M"
 
 [languages]
   [languages.zh-tw]
@@ -38,4 +36,7 @@ defaultContentLanguage = "zh-tw"
 
 
 
-
+[sitemap]
+  changefreq = "monthly"
+  filename = "sitemap.xml"
+  priority = 0.5
