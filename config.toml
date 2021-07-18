@@ -1,7 +1,7 @@
 baseURL = "https://cflien.me/"
 languageCode = "en-us"
 title = "My New Hugo Site"
-theme="ananke"
+theme="hugo-coder"
 
 [permalinks]
   posts = "/:year/:month/:title/"
