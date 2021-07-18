@@ -1,7 +1,41 @@
 baseURL = "https://cflien.me/"
-languageCode = "en-us"
-title = "My New Hugo Site"
 theme="hugo-coder"
+
+defaultContentLanguage = "zh-tw"
+
+[params.googleTagManager]
+    id = "G-75TS27309M"
+
+[languages]
+  [languages.zh-tw]
+    title = "工程師的摳頂人生"
+    languageName = ":taiwan:"
+    weight = 1
+    [[languages.zh-tw.menu.main]]
+      name = "部落格"
+      weight = 1
+      url  = "posts/"
+    [[languages.zh-tw.menu.main]]
+      name = "關於我"
+      weight = 2
+      url = "about/"
+  [languages.en]
+    languageName = ":us:"
+    title = "An engineer's coding life"
+    weight = 2
+    [[languages.en.menu.main]]
+      name = "Blog"
+      weight = 1
+      url  = "posts/"
+    [[languages.en.menu.main]]
+      name = "About"
+      weight = 2
+      url = "about/"
 
 [permalinks]
   posts = "/:year/:month/:title/"
+
+
+
+
+
