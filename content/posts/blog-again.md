@@ -5,8 +5,8 @@ title = "再出發"
 description = ""
 slug = ""
 authors = []
-tags = [blog, hugo, netlify, github, google analytics, google search console]
-categories = [blog, hugo]
+tags = ["blog", "hugo", "netlify", "github", "google analytics", "google search console"]
+categories = ["blog", "hugo"]
 externalLink = ""
 series = []
 +++
