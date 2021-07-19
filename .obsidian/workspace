@@ -1,0 +1,142 @@
+{
+  "main": {
+    "id": "34731b5f4908cafc",
+    "type": "split",
+    "children": [
+      {
+        "id": "8f330c78b803ebd3",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "content/posts/blog-again.md",
+            "mode": "source"
+          }
+        },
+        "group": "eb175793797f66d8"
+      },
+      {
+        "id": "a11442e5258340f9",
+        "type": "leaf",
+        "state": {
+          "type": "markdown",
+          "state": {
+            "file": "content/posts/blog-again.md",
+            "mode": "preview"
+          }
+        },
+        "group": "eb175793797f66d8"
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "f5da6b156701acb5",
+    "type": "split",
+    "children": [
+      {
+        "id": "99a50e6282b2f933",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "8a7402d7468c4c3d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {}
+            }
+          },
+          {
+            "id": "2a360383f4799ca7",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 175
+  },
+  "right": {
+    "id": "5b8e2b62cc0758ff",
+    "type": "split",
+    "children": [
+      {
+        "id": "d5078312664ca8e3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6adb15921c1474ed",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "content/posts/blog-again.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "ef1a74ae692000e6",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "content/posts/blog-again.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "011e30f5de130bc0",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "bbfe1807ec71902a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "content/posts/blog-again.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "active": "8f330c78b803ebd3",
+  "lastOpenFiles": [
+    "content/posts/blog-again.md",
+    "archetypes/default.md",
+    "themes/hugo-coder/CONTRIBUTORS.md",
+    "content/posts/hello-world.md"
+  ]
+}
