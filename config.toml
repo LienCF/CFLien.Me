@@ -1,5 +1,5 @@
 baseURL = "https://cflien.me/"
-theme = "hugo-coder"
+theme = "LoveIt"
 googleAnalytics = "G-75TS27309M"
 
 defaultContentLanguage = "zh-tw"
