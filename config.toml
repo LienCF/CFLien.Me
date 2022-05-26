@@ -931,7 +931,7 @@ enableEmoji = true
 
 [params.algolia]
   appId = "LH78QXSWHO"
-  indexName = "Hugo"
+  indexName = "blog"
   searchOnlyKey = "2db3fe0c7a61fcb27ab26d4b04fee8d6"
   vars = ["title", "summary", "date", "publishdate", "expirydate", "permalink"] 
   params = ["categories", "tags", "series"]
