@@ -1,7 +1,6 @@
 [build]
 publish = "public"
-command = "hugo --gc --minify"
-command = "npm install;npm run algolia"
+command = "hugo --gc --minify;npm install;npm run algolia"
 
 [context.production.environment]
 HUGO_VERSION = "0.85.0"
