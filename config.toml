@@ -329,7 +329,7 @@ enableEmoji = true
         # 是否在搜索索引中使用基于 baseURL 的绝对路径
         absoluteURL = false
         [languages.zh-tw.params.search.algolia]
-          index = "index.zh-tw"
+          index = "blog"
           appID = "LH78QXSWHO"
           searchKey = "2db3fe0c7a61fcb27ab26d4b04fee8d6"
       # 主页信息设置
