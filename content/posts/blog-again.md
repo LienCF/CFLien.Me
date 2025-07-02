@@ -4,7 +4,7 @@ date: 2021-07-18T15:24:34+08:00
 title: "再出發"
 description: ""
 slug: ""
-authors: []
+author: "ChihFeng Lien"
 tags: ["blog", "hugo", "netlify", "github", "google analytics", "google search console"]
 categories: ["blog", "hugo"]
 externalLink: ""

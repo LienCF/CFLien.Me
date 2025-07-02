@@ -1,0 +1,279 @@
+<!doctype html><html lang=zh-TW><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><title>解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題 - LoveIt</title><meta name=Description content="詳細分析並解決 Cursor Agent 在 zsh 環境下執行指令後卡住、需要手動 Skip 且出現 'command not found: q' 錯誤的問題"><meta property="og:url" content="https://cflien.me/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/"><meta property="og:site_name" content="LoveIt"><meta property="og:title" content="解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題"><meta property="og:description" content="詳細分析並解決 Cursor Agent 在 zsh 環境下執行指令後卡住、需要手動 Skip 且出現 'command not found: q' 錯誤的問題"><meta property="og:locale" content="zh_TW"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2024-12-26T15:00:00+08:00"><meta property="article:modified_time" content="2024-12-26T15:00:00+08:00"><meta property="article:tag" content="Cursor"><meta property="article:tag" content="Zsh"><meta property="article:tag" content="Oh My Zsh"><meta property="article:tag" content="Powerlevel10k"><meta property="article:tag" content="Terminal"><meta property="article:tag" content="Debug"><meta property="og:image" content="https://cflien.me/logo.png"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://cflien.me/logo.png"><meta name=twitter:title content="解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題"><meta name=twitter:description content="詳細分析並解決 Cursor Agent 在 zsh 環境下執行指令後卡住、需要手動 Skip 且出現 'command not found: q' 錯誤的問題"><meta name=twitter:site content="@aiwa"><meta name=application-name content="工程師的摳頂人生"><meta name=apple-mobile-web-app-title content="工程師的摳頂人生"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://cflien.me/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/><link rel=prev href=https://cflien.me/2024/12/%E5%A6%82%E4%BD%95%E5%9C%A8-cursor-%E4%B8%AD%E5%B0%87%E9%A0%90%E8%A8%AD%E7%B5%82%E7%AB%AF%E7%94%B1-powershell-%E8%AE%8A%E6%9B%B4%E7%82%BA-zsh/><link rel=next href=https://cflien.me/2025/06/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css></noscript><link rel=preload href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css as=style onload='this.onload=null,this.rel="stylesheet"'><noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題","inLanguage":"zh-TW","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/cflien.me\/2024\/12\/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C\/"},"image":["https:\/\/cflien.me\/images\/Apple-Devices-Preview.png"],"genre":"posts","keywords":"Cursor, Zsh, Oh My Zsh, Powerlevel10k, Terminal, Debug","wordcount":1744,"url":"https:\/\/cflien.me\/2024\/12\/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C\/","datePublished":"2024-12-26T15:00:00+08:00","dateModified":"2024-12-26T15:00:00+08:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"ChihFeng Lien","logo":"https:\/\/cflien.me\/images\/avatar.png"},"author":{"@type":"Person","name":"ChihFeng Lien"},"description":"詳細分析並解決 Cursor Agent 在 zsh 環境下執行指令後卡住、需要手動 Skip 且出現 'command not found: q' 錯誤的問題"}</script></head><body data-header-desktop=fixed data-header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem("theme")?localStorage.getItem("theme")==="dark":"auto"==="auto"?window.matchMedia("(prefers-color-scheme: dark)").matches:"auto"==="dark")&&document.body.setAttribute("theme","dark")</script><div id=mask></div><div class=wrapper><header class=desktop id=header-desktop><div class=header-wrapper><div class=header-title><a href=/ title=LoveIt><span class=header-title-pre><i class='far fa-kiss-wink-heart fa-fw'></i></span><span id=id-1 class=typeit></span></a></div><div class=menu><div class=menu-inner><a class=menu-item href=/posts/>所有文章 </a><a class=menu-item href=/tags/>標簽 </a><a class=menu-item href=/categories/>分類 </a><a class=menu-item href=/categories/documentation/>文件 </a><a class=menu-item href=/about/>關於 </a><span class="menu-item delimiter"></span><a href=javascript:void(0); class="menu-item language" title=選擇語言>正體中文<i class="fas fa-chevron-right fa-fw" aria-hidden=true></i>
+<select class=language-select id=language-select-desktop onchange="location=this.value"><option value=/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/ selected>正體中文</option></select>
+</a><span class="menu-item search" id=search-desktop><input type=text placeholder=搜索文章標題或內容... id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=搜索><i class="fas fa-search fa-fw" aria-hidden=true></i>
+</a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=清空><i class="fas fa-times-circle fa-fw" aria-hidden=true></i>
+</a><span class="search-button search-loading" id=search-loading-desktop><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i>
+</span></span><a href=javascript:void(0); class="menu-item theme-switch" title=切換主題><i class="fas fa-adjust fa-fw" aria-hidden=true></i></a></div></div></div></header><header class=mobile id=header-mobile><div class=header-container><div class=header-wrapper><div class=header-title><a href=/ title=LoveIt><span class=header-title-pre><i class='far fa-kiss-wink-heart fa-fw'></i></span><span id=id-2 class=typeit></span></a></div><div class=menu-toggle id=menu-toggle-mobile><span></span><span></span><span></span></div></div><div class=menu id=menu-mobile><div class=search-wrapper><div class="search mobile" id=search-mobile><input type=text placeholder=搜索文章標題或內容... id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=搜索><i class="fas fa-search fa-fw" aria-hidden=true></i>
+</a><a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=清空><i class="fas fa-times-circle fa-fw" aria-hidden=true></i>
+</a><span class="search-button search-loading" id=search-loading-mobile><i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i></span></div><a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>取消</a></div><a class=menu-item href=/posts/ title>所有文章</a><a class=menu-item href=/tags/ title>標簽</a><a class=menu-item href=/categories/ title>分類</a><a class=menu-item href=/categories/documentation/ title>文件</a><a class=menu-item href=/about/ title>關於</a><a href=javascript:void(0); class="menu-item theme-switch" title=切換主題>
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i>
+</a><a href=javascript:void(0); class=menu-item title=選擇語言>正體中文<i class="fas fa-chevron-right fa-fw" aria-hidden=true></i>
+<select class=language-select onchange="location=this.value"><option value=/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/ selected>正體中文</option></select></a></div></div></header><div class="search-dropdown desktop"><div id=search-dropdown-desktop></div></div><div class="search-dropdown mobile"><div id=search-dropdown-mobile></div></div><main class=main><div class=container><div class=toc id=toc-auto><h2 class=toc-title>目錄</h2><div class=toc-content id=toc-content-auto></div></div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題</h1><div class=post-meta><div class=post-meta-line><span class=post-author><a href=/ title=Author rel=author class=author><i class="fas fa-user-circle fa-fw" aria-hidden=true></i>ChihFeng Lien</a></span>&nbsp;<span class=post-category>收錄於 <a href=/categories/tech/><i class="far fa-folder fa-fw" aria-hidden=true></i>Tech</a></span></div><div class=post-meta-line><i class="far fa-calendar-alt fa-fw" aria-hidden=true></i>&nbsp;<time datetime=2024-12-26>2024-12-26</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden=true></i>&nbsp;約 1744 字&nbsp;
+<i class="far fa-clock fa-fw" aria-hidden=true></i>&nbsp;預計閱讀 4 分鐘&nbsp;<span id=/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/ class=leancloud_visitors data-flag-title="解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題">
+<i class="far fa-eye fa-fw" aria-hidden=true></i>&nbsp;<span class=leancloud-visitors-count></span>&nbsp;次閱讀
+</span>&nbsp;</div></div><div class="details toc" id=toc-static data-kept><div class="details-summary toc-title"><span>目錄</span>
+<span><i class="details-icon fas fa-angle-right" aria-hidden=true></i></span></div><div class="details-content toc-content" id=toc-content-static><nav id=TableOfContents><ul><li><a href=#問題描述>問題描述</a></li><li><a href=#問題根本原因分析>問題根本原因分析</a><ul><li><a href=#1-prompt-解析失敗>1. Prompt 解析失敗</a></li><li><a href=#2-pager-干擾機制>2. Pager 干擾機制</a></li><li><a href=#3-skip-操作的副作用>3. Skip 操作的副作用</a></li></ul></li><li><a href=#解決方案>解決方案</a><ul><li><a href=#方法一針對-cursor-agent-停用-pager>方法一：針對 Cursor Agent 停用 Pager</a></li><li><a href=#方法二建立-cursor-專用的簡化設定檔>方法二：建立 Cursor 專用的簡化設定檔</a></li><li><a href=#方法三使用條件式主題載入推薦>方法三：使用條件式主題載入（推薦）</a></li></ul></li><li><a href=#環境變數說明>環境變數說明</a><ul><li><a href=#cursor_trace_id>CURSOR_TRACE_ID</a></li><li><a href=#pager-設定選項>PAGER 設定選項</a></li></ul></li><li><a href=#驗證解決方案>驗證解決方案</a><ul><li><a href=#1-測試-agent-指令執行>1. 測試 Agent 指令執行</a></li><li><a href=#2-確認終端主題正常>2. 確認終端主題正常</a></li><li><a href=#3-測試長輸出處理>3. 測試長輸出處理</a></li></ul></li><li><a href=#進階調整>進階調整</a><ul><li><a href=#自訂-cursor-agent-偵測>自訂 Cursor Agent 偵測</a></li><li><a href=#日誌記錄調試>日誌記錄調試</a></li></ul></li><li><a href=#常見問題排解>常見問題排解</a><ul><li><a href=#q-設定後仍然卡住怎麼辦>Q: 設定後仍然卡住怎麼辦？</a></li><li><a href=#q-主題沒有載入怎麼辦>Q: 主題沒有載入怎麼辦？</a></li><li><a href=#q-其他編輯器會受影響嗎>Q: 其他編輯器會受影響嗎？</a></li></ul></li><li><a href=#總結>總結</a></li><li><a href=#參考資源>參考資源</a></li></ul></nav></div></div><div class=content id=content><h2 id=問題描述>問題描述</h2><p>當你將 Cursor 的整合終端切換為 zsh，特別是搭配 Oh My Zsh 或 Powerlevel10k 主題後，可能會遇到以下困擾：</p><ol><li><strong>Agent 執行指令後卡住不動</strong>：Cursor 無法自動偵測命令執行完成</li><li><strong>需要手動點擊 Skip</strong>：每次都要人工介入才能繼續</li><li><strong>出現 <code>q</code> 指令錯誤</strong>：Skip 後會看到 <code>zsh: command not found: q</code> 的錯誤訊息</li></ol><p>這個問題不僅影響工作流程的順暢度，也讓原本應該自動化的 AI Assistant 體驗大打折扣。</p><h2 id=問題根本原因分析>問題根本原因分析</h2><h3 id=1-prompt-解析失敗>1. Prompt 解析失敗</h3><p>Cursor Agent 在執行 <code>run_terminal_cmd</code> 時，會透過解析 shell prompt 的字串來判斷命令是否結束。然而：</p><ul><li><strong>zsh 的複雜 prompt</strong>：Oh My Zsh 和 Powerlevel10k 產生的 prompt 包含大量彩色字元、特殊符號和動態內容</li><li><strong>匹配模式無法識別</strong>：Cursor 內建的 prompt 匹配規則無法正確識別這些複雜的 prompt 格式</li><li><strong>結果持續等待</strong>：系統誤判命令仍在執行中，因此一直等待結束信號</li></ul><h3 id=2-pager-干擾機制>2. Pager 干擾機制</h3><p>Cursor 為了處理長輸出，會將命令包在分頁器（pager）流程中：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Cursor 內部執行方式類似</span>
+</span></span><span class=line><span class=cl><span class=nb>command</span> <span class=p>|</span> less
+</span></span></code></pre></td></tr></table></div></div><p>當偵測不到結束信號時，Cursor 認為可能卡在分頁器中。</p><h3 id=3-skip-操作的副作用>3. Skip 操作的副作用</h3><p>當使用者點擊 Skip 時，Cursor 會：</p><ol><li><strong>發送 <code>q</code> 字元</strong>：嘗試退出 pager（<code>less</code> 的標準退出鍵）</li><li><strong>直接執行為命令</strong>：但此時已脫離 pager 環境，<code>q</code> 被當作一般指令</li><li><strong>產生錯誤訊息</strong>：zsh 找不到名為 <code>q</code> 的程式，輸出錯誤</li></ol><h2 id=解決方案>解決方案</h2><h3 id=方法一針對-cursor-agent-停用-pager>方法一：針對 Cursor Agent 停用 Pager</h3><p>最直接的解決方案是在 <code>.zshrc</code> 中偵測 Cursor Agent 環境，並針對性地調整設定：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ~/.zshrc</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Detect Cursor Agent environment and disable pager</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>LESS</span><span class=o>=</span><span class=s1>&#39;-RF&#39;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Your existing Oh My Zsh configuration</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ZSH</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$HOME</span><span class=s2>/.oh-my-zsh&#34;</span>
+</span></span><span class=line><span class=cl><span class=nv>ZSH_THEME</span><span class=o>=</span><span class=s2>&#34;powerlevel10k/powerlevel10k&#34;</span>
+</span></span><span class=line><span class=cl><span class=nb>source</span> <span class=nv>$ZSH</span>/oh-my-zsh.sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load Powerlevel10k configuration</span>
+</span></span><span class=line><span class=cl><span class=o>[[</span> -f ~/.p10k.zsh <span class=o>]]</span> <span class=o>&amp;&amp;</span> <span class=nb>source</span> ~/.p10k.zsh
+</span></span></code></pre></td></tr></table></div></div><p><strong>重要說明</strong>：</p><ul><li>不要在 <code>if</code> 區塊後加上 <code>return</code>，這會導致主題無法載入</li><li>僅修改 pager 相關設定，保留完整的 zsh 功能</li></ul><h3 id=方法二建立-cursor-專用的簡化設定檔>方法二：建立 Cursor 專用的簡化設定檔</h3><p>如果你想要更精確的控制，可以建立一個專門的設定檔：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ~/.zshrc</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=c1># Cursor Agent specific settings</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>LESS</span><span class=o>=</span><span class=s1>&#39;-RF&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>MANPAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1># Use minimal prompt for better detection</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PS1</span><span class=o>=</span><span class=s1>&#39;%n@%m:%~$ &#39;</span>
+</span></span><span class=line><span class=cl>  
+</span></span><span class=line><span class=cl>  <span class=c1># Skip complex theme loading for agent</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>CURSOR_AGENT_MODE</span><span class=o>=</span><span class=nb>true</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load full configuration only if not in agent mode</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -z <span class=nv>$CURSOR_AGENT_MODE</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>ZSH</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$HOME</span><span class=s2>/.oh-my-zsh&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nv>ZSH_THEME</span><span class=o>=</span><span class=s2>&#34;powerlevel10k/powerlevel10k&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nb>source</span> <span class=nv>$ZSH</span>/oh-my-zsh.sh
+</span></span><span class=line><span class=cl>  <span class=o>[[</span> -f ~/.p10k.zsh <span class=o>]]</span> <span class=o>&amp;&amp;</span> <span class=nb>source</span> ~/.p10k.zsh
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>  <span class=c1># Minimal setup for agent mode</span>
+</span></span><span class=line><span class=cl>  autoload -U compinit
+</span></span><span class=line><span class=cl>  compinit
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=方法三使用條件式主題載入推薦>方法三：使用條件式主題載入（推薦）</h3><p>這個方法既能解決 Agent 問題，又能在一般終端中保留完整的主題體驗：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ~/.zshrc</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Always load basic zsh functionality</span>
+</span></span><span class=line><span class=cl>autoload -Uz compinit
+</span></span><span class=line><span class=cl>compinit
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configure pager for Cursor Agent</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>LESS</span><span class=o>=</span><span class=s1>&#39;-RF&#39;</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>MANPAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load Oh My Zsh and themes</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>ZSH</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$HOME</span><span class=s2>/.oh-my-zsh&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Use simplified theme in Cursor Agent mode</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nv>ZSH_THEME</span><span class=o>=</span><span class=s2>&#34;robbyrussell&#34;</span>  <span class=c1># Simple theme for better compatibility</span>
+</span></span><span class=line><span class=cl><span class=k>else</span>
+</span></span><span class=line><span class=cl>  <span class=nv>ZSH_THEME</span><span class=o>=</span><span class=s2>&#34;powerlevel10k/powerlevel10k&#34;</span>  <span class=c1># Full theme for interactive use</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>source</span> <span class=nv>$ZSH</span>/oh-my-zsh.sh
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Load Powerlevel10k only in interactive mode</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -z <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>&amp;&amp;</span> -f ~/.p10k.zsh <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>source</span> ~/.p10k.zsh
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=環境變數說明>環境變數說明</h2><h3 id=cursor_trace_id>CURSOR_TRACE_ID</h3><p>這是 Cursor Agent 執行時設定的環境變數，可以用來偵測是否在 Agent 模式下執行：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Check if running in Cursor Agent mode</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=nv>$CURSOR_TRACE_ID</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=pager-設定選項>PAGER 設定選項</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Option 1: Use cat (no paging)</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Option 2: Use less with specific flags</span>
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>less
+</span></span><span class=line><span class=cl><span class=nb>export</span> <span class=nv>LESS</span><span class=o>=</span><span class=s1>&#39;-RF&#39;</span>  <span class=c1># -R: raw control chars, -F: quit if one screen</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Option 3: Disable pager completely</span>
+</span></span><span class=line><span class=cl><span class=nb>unset</span> PAGER
+</span></span></code></pre></td></tr></table></div></div><h2 id=驗證解決方案>驗證解決方案</h2><h3 id=1-測試-agent-指令執行>1. 測試 Agent 指令執行</h3><p>重新啟動 Cursor 後，測試 Agent 執行簡單指令：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>ls -la
+</span></span></code></pre></td></tr></table></div></div><p>應該能看到：</p><ul><li>✅ 指令正常執行完成</li><li>✅ Cursor 自動偵測到執行結束</li><li>✅ 不需要手動 Skip</li><li>✅ 沒有 <code>command not found: q</code> 錯誤</li></ul><h3 id=2-確認終端主題正常>2. 確認終端主題正常</h3><p>在 Cursor 中手動開啟新的終端分頁：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Should show your configured theme</span>
+</span></span><span class=line><span class=cl><span class=nb>echo</span> <span class=nv>$ZSH_THEME</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Check if Powerlevel10k is loaded (if using)</span>
+</span></span><span class=line><span class=cl>p10k version
+</span></span></code></pre></td></tr></table></div></div><h3 id=3-測試長輸出處理>3. 測試長輸出處理</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># Test with long output</span>
+</span></span><span class=line><span class=cl>find /usr -name <span class=s2>&#34;*.dylib&#34;</span> 2&gt;/dev/null
+</span></span></code></pre></td></tr></table></div></div><p>應該能正常顯示而不會卡在分頁器中。</p><h2 id=進階調整>進階調整</h2><h3 id=自訂-cursor-agent-偵測>自訂 Cursor Agent 偵測</h3><p>如果 <code>CURSOR_TRACE_ID</code> 偵測不穩定，可以使用其他方法：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ~/.zshrc</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Multiple detection methods</span>
+</span></span><span class=line><span class=cl>is_cursor_agent<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span> <span class=o>||</span> 
+</span></span><span class=line><span class=cl>  <span class=o>[[</span> <span class=nv>$TERM_PROGRAM</span> <span class=o>==</span> <span class=s2>&#34;cursor&#34;</span> <span class=o>&amp;&amp;</span> -n <span class=nv>$VSCODE_INJECTION</span> <span class=o>]]</span> <span class=o>||</span>
+</span></span><span class=line><span class=cl>  <span class=o>[[</span> -n <span class=nv>$CURSOR_USER_ID</span> <span class=o>]]</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> is_cursor_agent<span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>LESS</span><span class=o>=</span><span class=s1>&#39;-RF&#39;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=日誌記錄調試>日誌記錄調試</h3><p>添加日誌來追蹤設定載入情況：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ~/.zshrc</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Debug logging</span>
+</span></span><span class=line><span class=cl><span class=nv>CURSOR_DEBUG_LOG</span><span class=o>=</span><span class=s2>&#34;</span><span class=nv>$HOME</span><span class=s2>/.cursor_zsh_debug.log&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>log_debug<span class=o>()</span> <span class=o>{</span>
+</span></span><span class=line><span class=cl>  <span class=nb>echo</span> <span class=s2>&#34;[</span><span class=k>$(</span>date<span class=k>)</span><span class=s2>] </span><span class=nv>$1</span><span class=s2>&#34;</span> &gt;&gt; <span class=s2>&#34;</span><span class=nv>$CURSOR_DEBUG_LOG</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=o>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  log_debug <span class=s2>&#34;Cursor Agent detected: </span><span class=nv>$CURSOR_TRACE_ID</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  log_debug <span class=s2>&#34;PAGER set to cat&#34;</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=常見問題排解>常見問題排解</h2><h3 id=q-設定後仍然卡住怎麼辦>Q: 設定後仍然卡住怎麼辦？</h3><p><strong>A</strong>: 檢查以下項目：</p><ol><li><p>確認 <code>.zshrc</code> 語法正確：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>zsh -n ~/.zshrc
+</span></span></code></pre></td></tr></table></div></div></li><li><p>檢查環境變數是否正確設定：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>env <span class=p>|</span> grep -E <span class=s2>&#34;(PAGER|LESS|CURSOR)&#34;</span>
+</span></span></code></pre></td></tr></table></div></div></li><li><p>重新啟動 Cursor 確保設定生效</p></li></ol><h3 id=q-主題沒有載入怎麼辦>Q: 主題沒有載入怎麼辦？</h3><p><strong>A</strong>: 確保沒有在設定區塊後使用 <code>return</code>：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl><span class=c1># ❌ Wrong - this will skip theme loading</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl>  <span class=k>return</span>  <span class=c1># This breaks theme loading</span>
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># ✅ Correct - theme will load normally</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=o>[[</span> -n <span class=nv>$CURSOR_TRACE_ID</span> <span class=o>]]</span><span class=p>;</span> <span class=k>then</span>
+</span></span><span class=line><span class=cl>  <span class=nb>export</span> <span class=nv>PAGER</span><span class=o>=</span>cat
+</span></span><span class=line><span class=cl><span class=k>fi</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=q-其他編輯器會受影響嗎>Q: 其他編輯器會受影響嗎？</h3><p><strong>A</strong>: 不會。設定僅在偵測到 <code>CURSOR_TRACE_ID</code> 時生效，不會影響其他編輯器或終端應用程式。</p><h2 id=總結>總結</h2><p>透過在 <code>.zshrc</code> 中針對 Cursor Agent 環境進行條件式設定，我們可以：</p><ol><li><strong>解決指令偵測問題</strong>：避免 Agent 卡住等待</li><li><strong>消除錯誤訊息</strong>：不再出現 <code>command not found: q</code></li><li><strong>保留完整功能</strong>：在一般終端中仍享有完整的 zsh 主題體驗</li><li><strong>提升工作效率</strong>：讓 AI Assistant 功能重新順暢運作</li></ol><p>這個解決方案的核心是理解 Cursor Agent 的運作機制，並針對性地調整環境設定，而非完全捨棄 zsh 的強大功能。記住，好的開發環境設定應該是既實用又不犧牲功能性的平衡。</p><h2 id=參考資源>參考資源</h2><ul><li><a href=https://forum.cursor.com/t/bug-ai-assistant-terminal-commands-never-auto-complete/101844 target=_blank>Cursor Agent Terminal Commands Issue</a></li><li><a href=https://forum.cursor.com/t/zsh-command-not-found-q/101502 target=_blank>Zsh Command Not Found: q</a></li><li><a href=https://github.com/ohmyzsh/ohmyzsh target=_blank>Oh My Zsh Configuration Guide</a></li><li><a href=https://github.com/romkatv/powerlevel10k target=_blank>Powerlevel10k Documentation</a></li></ul></div><div class=post-footer id=post-footer><div class=post-info><div class=post-info-line><div class=post-info-mod><span>更新於 2024-12-26</span></div></div><div class=post-info-line><div class=post-info-md><span><a class=link-to-markdown href=/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/index.md target=_blank>閱讀原始文檔</a></span></div><div class=post-info-share><span></span></div></div></div><div class=post-info-more><section class=post-tags><i class="fas fa-tags fa-fw" aria-hidden=true></i>&nbsp;<a href=/tags/cursor/>Cursor</a>,&nbsp;<a href=/tags/zsh/>Zsh</a>,&nbsp;<a href=/tags/oh-my-zsh/>Oh My Zsh</a>,&nbsp;<a href=/tags/powerlevel10k/>Powerlevel10k</a>,&nbsp;<a href=/tags/terminal/>Terminal</a>,&nbsp;<a href=/tags/debug/>Debug</a></section><section><span><a href=javascript:void(0); onclick=window.history.back()>返回</a></span>&nbsp;|&nbsp;<span><a href=/>主頁</a></span></section></div><div class=post-nav><a href=/2024/12/%E5%A6%82%E4%BD%95%E5%9C%A8-cursor-%E4%B8%AD%E5%B0%87%E9%A0%90%E8%A8%AD%E7%B5%82%E7%AB%AF%E7%94%B1-powershell-%E8%AE%8A%E6%9B%B4%E7%82%BA-zsh/ class=prev rel=prev title="如何在 Cursor 中將預設終端由 PowerShell 變更為 Zsh"><i class="fas fa-angle-left fa-fw" aria-hidden=true></i>如何在 Cursor 中將預設終端由 PowerShell 變更為 Zsh</a>
+<a href=/2025/06/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/ class=next rel=next title="如何使用 Docker Compose 自架 n8n 自動化工作流程平台">如何使用 Docker Compose 自架 n8n 自動化工作流程平台<i class="fas fa-angle-right fa-fw" aria-hidden=true></i></a></div></div><div id=comments><div id=valine class=comment></div><noscript>Please enable JavaScript to view the comments powered by <a href=https://valine.js.org/>Valine</a>.</noscript></div></article></div></main><footer class=footer><div class=footer-container><div class=footer-line>由 <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.147.9">Hugo</a> 強力驅動 | 主題 - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden=true></i> LoveIt</a></div><div class=footer-line itemscope itemtype=http://schema.org/CreativeWork><i class="far fa-copyright fa-fw" aria-hidden=true></i><span itemprop=copyrightYear>2021 - 2025</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/ target=_blank>ChihFeng Lien</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer></div><div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title=回到頂部><i class="fas fa-arrow-up fa-fw" aria-hidden=true></i>
+</a><a href=# id=view-comments class=fixed-button title=查看評論><i class="fas fa-comment fa-fw" aria-hidden=true></i></a></div><link rel=stylesheet href=/lib/valine/valine.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/valine@1.5.3/dist/Valine.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/algoliasearch@4.13.1/dist/algoliasearch-lite.umd.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/typeit@8.6.0/dist/index.umd.js></script><script type=text/javascript>window.config={code:{copyTitle:"複製到剪貼板",maxShownLines:10},comment:{valine:{appId:"QGzwQXOqs5JOhN4RGPOkR2mR-MdYXbMMI",appKey:"WBmoGyJtbqUswvfLh6L8iEBr",avatar:"mp",el:"#valine",emojiCDN:"https://cdn.jsdelivr.net/npm/emoji-datasource-google@15.1.2/img/google/64/",emojiMaps:{100:"1f4af.png",alien:"1f47d.png",anger:"1f4a2.png",angry:"1f620.png",anguished:"1f627.png",astonished:"1f632.png",black_heart:"1f5a4.png",blue_heart:"1f499.png",blush:"1f60a.png",bomb:"1f4a3.png",boom:"1f4a5.png",broken_heart:"1f494.png",brown_heart:"1f90e.png",clown_face:"1f921.png",cold_face:"1f976.png",cold_sweat:"1f630.png",confounded:"1f616.png",confused:"1f615.png",cry:"1f622.png",crying_cat_face:"1f63f.png",cupid:"1f498.png",dash:"1f4a8.png",disappointed:"1f61e.png",disappointed_relieved:"1f625.png",dizzy:"1f4ab.png",dizzy_face:"1f635.png",drooling_face:"1f924.png",exploding_head:"1f92f.png",expressionless:"1f611.png",face_vomiting:"1f92e.png",face_with_cowboy_hat:"1f920.png",face_with_hand_over_mouth:"1f92d.png",face_with_head_bandage:"1f915.png",face_with_monocle:"1f9d0.png",face_with_raised_eyebrow:"1f928.png",face_with_rolling_eyes:"1f644.png",face_with_symbols_on_mouth:"1f92c.png",face_with_thermometer:"1f912.png",fearful:"1f628.png",flushed:"1f633.png",frowning:"1f626.png",ghost:"1f47b.png",gift_heart:"1f49d.png",green_heart:"1f49a.png",grimacing:"1f62c.png",grin:"1f601.png",grinning:"1f600.png",hankey:"1f4a9.png",hear_no_evil:"1f649.png",heart:"2764-fe0f.png",heart_decoration:"1f49f.png",heart_eyes:"1f60d.png",heart_eyes_cat:"1f63b.png",heartbeat:"1f493.png",heartpulse:"1f497.png",heavy_heart_exclamation_mark_ornament:"2763-fe0f.png",hole:"1f573-fe0f.png",hot_face:"1f975.png",hugging_face:"1f917.png",hushed:"1f62f.png",imp:"1f47f.png",innocent:"1f607.png",japanese_goblin:"1f47a.png",japanese_ogre:"1f479.png",joy:"1f602.png",joy_cat:"1f639.png",kiss:"1f48b.png",kissing:"1f617.png",kissing_cat:"1f63d.png",kissing_closed_eyes:"1f61a.png",kissing_heart:"1f618.png",kissing_smiling_eyes:"1f619.png",laughing:"1f606.png",left_speech_bubble:"1f5e8-fe0f.png",love_letter:"1f48c.png",lying_face:"1f925.png",mask:"1f637.png",money_mouth_face:"1f911.png",nauseated_face:"1f922.png",nerd_face:"1f913.png",neutral_face:"1f610.png",no_mouth:"1f636.png",open_mouth:"1f62e.png",orange_heart:"1f9e1.png",partying_face:"1f973.png",pensive:"1f614.png",persevere:"1f623.png",pleading_face:"1f97a.png",pouting_cat:"1f63e.png",purple_heart:"1f49c.png",rage:"1f621.png",relaxed:"263a-fe0f.png",relieved:"1f60c.png",revolving_hearts:"1f49e.png",right_anger_bubble:"1f5ef-fe0f.png",robot_face:"1f916.png",rolling_on_the_floor_laughing:"1f923.png",scream:"1f631.png",scream_cat:"1f640.png",see_no_evil:"1f648.png",shushing_face:"1f92b.png",skull:"1f480.png",skull_and_crossbones:"2620-fe0f.png",sleeping:"1f634.png",sleepy:"1f62a.png",slightly_frowning_face:"1f641.png",slightly_smiling_face:"1f642.png",smile:"1f604.png",smile_cat:"1f638.png",smiley:"1f603.png",smiley_cat:"1f63a.png",smiling_face_with_3_hearts:"1f970.png",smiling_imp:"1f608.png",smirk:"1f60f.png",smirk_cat:"1f63c.png",sneezing_face:"1f927.png",sob:"1f62d.png",space_invader:"1f47e.png",sparkling_heart:"1f496.png",speak_no_evil:"1f64a.png",speech_balloon:"1f4ac.png","star-struck":"1f929.png",stuck_out_tongue:"1f61b.png",stuck_out_tongue_closed_eyes:"1f61d.png",stuck_out_tongue_winking_eye:"1f61c.png",sunglasses:"1f60e.png",sweat:"1f613.png",sweat_drops:"1f4a6.png",sweat_smile:"1f605.png",thinking_face:"1f914.png",thought_balloon:"1f4ad.png",tired_face:"1f62b.png",triumph:"1f624.png",two_hearts:"1f495.png",unamused:"1f612.png",upside_down_face:"1f643.png",weary:"1f629.png",white_frowning_face:"2639-fe0f.png",white_heart:"1f90d.png",wink:"1f609.png",woozy_face:"1f974.png",worried:"1f61f.png",yawning_face:"1f971.png",yellow_heart:"1f49b.png",yum:"1f60b.png",zany_face:"1f92a.png",zipper_mouth_face:"1f910.png",zzz:"1f4a4.png"},enableQQ:!1,highlight:!0,lang:"zh-TW",pageSize:10,placeholder:"你的評論 ...",recordIP:!0,serverURLs:"https://leancloud.hugoloveit.com",visitor:!0}},data:{"id-1":"工程師的摳頂人生","id-2":"工程師的摳頂人生"},search:{algoliaAppID:"LH78QXSWHO",algoliaIndex:"blog",algoliaSearchKey:"2db3fe0c7a61fcb27ab26d4b04fee8d6",highlightTag:"em",maxResultLength:10,noResultsFound:"沒有找到結果",snippetLength:50,type:"algolia"},typeit:{cursorChar:"|",cursorSpeed:1e3,data:{"id-1":["id-1"],"id-2":["id-2"]},duration:-1,speed:100}}</script><script type=text/javascript src=/js/theme.min.js></script></body></html>

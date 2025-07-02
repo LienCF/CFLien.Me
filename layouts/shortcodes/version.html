@@ -1,0 +1,7 @@
+{{- $version := (.Get 0) | default "latest" -}}
+{{- $type := .Get 1 | default "release" -}}
+{{- $pathTemplate := cond hugo.IsMultilingual (printf "svg/version/%%v-%%v.%v.svg" .Page.Language.Lang) "svg/version/%v-%v.svg" -}}
+{{- $path := printf $pathTemplate $type $version -}}
+{{- with .Page.Resources.GetMatch $path -}}
+    <img class="version" data-style="{{ $.Get `style` }}" src="{{ .RelPermalink }}" title="{{ $version }}" referrerpolicy="no-referrer">
+{{- end -}} 

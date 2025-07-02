@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>如何使用 Docker Compose 自架 n8n 自動化工作流程平台 - LoveIt</title><meta name="Description" content="完整教學如何使用 Docker Compose 在自己的伺服器上架設 n8n 自動化工作流程平台，包含 PostgreSQL 資料庫設定、反向代理、SSL 憑證等"><meta property="og:url" content="http://localhost:1313/2024/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/">
+  <meta property="og:site_name" content="LoveIt">
+  <meta property="og:title" content="如何使用 Docker Compose 自架 n8n 自動化工作流程平台">
+  <meta property="og:description" content="完整教學如何使用 Docker Compose 在自己的伺服器上架設 n8n 自動化工作流程平台，包含 PostgreSQL 資料庫設定、反向代理、SSL 憑證等">
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-12-30T22:45:00+08:00">
+    <meta property="article:modified_time" content="2024-12-30T22:45:00+08:00">
+    <meta property="article:tag" content="N8n">
+    <meta property="article:tag" content="Docker">
+    <meta property="article:tag" content="Docker Compose">
+    <meta property="article:tag" content="自動化">
+    <meta property="article:tag" content="工作流程">
+    <meta property="article:tag" content="Self-Hosting">
+    <meta property="og:image" content="http://localhost:1313/logo.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="http://localhost:1313/logo.png">
+  <meta name="twitter:title" content="如何使用 Docker Compose 自架 n8n 自動化工作流程平台">
+  <meta name="twitter:description" content="完整教學如何使用 Docker Compose 在自己的伺服器上架設 n8n 自動化工作流程平台，包含 PostgreSQL 資料庫設定、反向代理、SSL 憑證等">
+      <meta name="twitter:site" content="@aiwa">
+<meta name="application-name" content="工程師的摳頂人生">
+<meta name="apple-mobile-web-app-title" content="工程師的摳頂人生"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="http://localhost:1313/2024/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/" /><link rel="prev" href="http://localhost:1313/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="lib/fontawesome-free/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="lib/fontawesome-free/all.min.css"></noscript><link rel="preload" href="/lib/animate/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="/lib/animate/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "如何使用 Docker Compose 自架 n8n 自動化工作流程平台",
+        "inLanguage": "zh-TW",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http:\/\/localhost:1313\/2024\/12\/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0\/"
+        },"image": ["http:\/\/localhost:1313\/images\/Apple-Devices-Preview.png"],"genre": "posts","keywords": "n8n, Docker, Docker Compose, 自動化, 工作流程, self-hosting","wordcount":  1852 ,
+        "url": "http:\/\/localhost:1313\/2024\/12\/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0\/","datePublished": "2024-12-30T22:45:00+08:00","dateModified": "2024-12-30T22:45:00+08:00","license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher": {
+            "@type": "Organization",
+            "name": "ChihFeng Lien","logo": "http:\/\/localhost:1313\/images\/avatar.png"},"author": {
+                "@type": "Person",
+                "name": "ChihFeng Lien"
+            },"description": "完整教學如何使用 Docker Compose 在自己的伺服器上架設 n8n 自動化工作流程平台，包含 PostgreSQL 資料庫設定、反向代理、SSL 憑證等"
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="LoveIt"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span><span id="id-1" class="typeit"></span></a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 所有文章 </a><a class="menu-item" href="/tags/"> 標簽 </a><a class="menu-item" href="/categories/"> 分類 </a><a class="menu-item" href="/categories/documentation/"> 文件 </a><a class="menu-item" href="/about/"> 關於 </a><span class="menu-item delimiter"></span><a href="javascript:void(0);" class="menu-item language" title="選擇語言">正體中文<i class="fas fa-chevron-right fa-fw" aria-hidden="true"></i>
+                        <select class="language-select" id="language-select-desktop" onchange="location = this.value;"><option value="/2024/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/" selected>正體中文</option></select>
+                    </a><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章標題或內容..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="切換主題">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="LoveIt"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw'></i></span><span id="id-2" class="typeit"></span></a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章標題或內容..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">所有文章</a><a class="menu-item" href="/tags/" title="">標簽</a><a class="menu-item" href="/categories/" title="">分類</a><a class="menu-item" href="/categories/documentation/" title="">文件</a><a class="menu-item" href="/about/" title="">關於</a><a href="javascript:void(0);" class="menu-item theme-switch" title="切換主題">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a><a href="javascript:void(0);" class="menu-item" title="選擇語言">正體中文<i class="fas fa-chevron-right fa-fw" aria-hidden="true"></i>
+                    <select class="language-select" onchange="location = this.value;"><option value="/2024/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/" selected>正體中文</option></select>
+                </a></div>
+    </div>
+</header><div class="search-dropdown desktop">
+        <div id="search-dropdown-desktop"></div>
+    </div>
+    <div class="search-dropdown mobile">
+        <div id="search-dropdown-mobile"></div>
+    </div><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目錄</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">如何使用 Docker Compose 自架 n8n 自動化工作流程平台</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>ChihFeng Lien</a></span>&nbsp;<span class="post-category">收錄於 <a href="/categories/tech/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Tech</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-12-30">2024-12-30</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;約 1852 字&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;預計閱讀 4 分鐘&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>目錄</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#什麼是-n8n">什麼是 n8n？</a></li>
+    <li><a href="#為什麼要自架-n8n">為什麼要自架 n8n？</a></li>
+    <li><a href="#準備工作">準備工作</a>
+      <ul>
+        <li><a href="#系統需求">系統需求</a></li>
+        <li><a href="#安裝-docker-和-docker-compose">安裝 Docker 和 Docker Compose</a></li>
+      </ul>
+    </li>
+    <li><a href="#建立-docker-compose-設定">建立 Docker Compose 設定</a>
+      <ul>
+        <li><a href="#1-建立專案目錄">1. 建立專案目錄</a></li>
+        <li><a href="#2-建立目錄結構">2. 建立目錄結構</a></li>
+        <li><a href="#3-建立-docker-compose-檔案">3. 建立 Docker Compose 檔案</a></li>
+        <li><a href="#4-建立-caddyfile反向代理和-ssl">4. 建立 Caddyfile（反向代理和 SSL）</a></li>
+      </ul>
+    </li>
+    <li><a href="#啟動-n8n">啟動 n8n</a>
+      <ul>
+        <li><a href="#1-設定環境變數">1. 設定環境變數</a></li>
+        <li><a href="#2-更新-docker-composeyml-使用環境變數">2. 更新 docker-compose.yml 使用環境變數</a></li>
+        <li><a href="#3-啟動服務">3. 啟動服務</a></li>
+      </ul>
+    </li>
+    <li><a href="#初始設定">初始設定</a>
+      <ul>
+        <li><a href="#1-訪問-n8n-界面">1. 訪問 n8n 界面</a></li>
+        <li><a href="#2-建立管理員帳號">2. 建立管理員帳號</a></li>
+        <li><a href="#3-設定工作區名稱">3. 設定工作區名稱</a></li>
+      </ul>
+    </li>
+    <li><a href="#進階設定">進階設定</a>
+      <ul>
+        <li><a href="#1-啟用執行資料持久化">1. 啟用執行資料持久化</a></li>
+        <li><a href="#2-設定-smtp-郵件通知">2. 設定 SMTP 郵件通知</a></li>
+        <li><a href="#3-增加記憶體限制">3. 增加記憶體限制</a></li>
+        <li><a href="#4-設定備份腳本">4. 設定備份腳本</a></li>
+      </ul>
+    </li>
+    <li><a href="#監控和維護">監控和維護</a>
+      <ul>
+        <li><a href="#1-查看系統資源使用">1. 查看系統資源使用</a></li>
+        <li><a href="#2-更新-n8n">2. 更新 n8n</a></li>
+        <li><a href="#3-日誌管理">3. 日誌管理</a></li>
+      </ul>
+    </li>
+    <li><a href="#安全性考量">安全性考量</a>
+      <ul>
+        <li><a href="#1-防火牆設定">1. 防火牆設定</a></li>
+        <li><a href="#2-定期更新">2. 定期更新</a></li>
+        <li><a href="#3-強化-postgresql">3. 強化 PostgreSQL</a></li>
+      </ul>
+    </li>
+    <li><a href="#故障排除">故障排除</a>
+      <ul>
+        <li><a href="#常見問題">常見問題</a></li>
+      </ul>
+    </li>
+    <li><a href="#結語">結語</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="什麼是-n8n">什麼是 n8n？</h2>
+<p>n8n 是一個開源的工作流程自動化平台，類似於 Zapier 或 Microsoft Power Automate，但可以完全自主託管。它提供了視覺化的工作流程編輯器，讓你可以輕鬆連接不同的服務和 API，自動化日常工作。</p>
+<h2 id="為什麼要自架-n8n">為什麼要自架 n8n？</h2>
+<ul>
+<li><strong>完全控制</strong>：你的資料完全在自己的伺服器上</li>
+<li><strong>無限制</strong>：沒有工作流程數量或執行次數限制</li>
+<li><strong>成本效益</strong>：比付費版本更經濟</li>
+<li><strong>自訂性</strong>：可以安裝自訂節點和功能</li>
+<li><strong>隱私</strong>：敏感資料不會傳送到第三方</li>
+</ul>
+<h2 id="準備工作">準備工作</h2>
+<h3 id="系統需求">系統需求</h3>
+<ul>
+<li>一台 Linux 伺服器（推薦 2GB RAM 以上）</li>
+<li>Docker 和 Docker Compose</li>
+<li>網域名稱（選用，但建議）</li>
+</ul>
+<h3 id="安裝-docker-和-docker-compose">安裝 Docker 和 Docker Compose</h3>
+<p>2025 年的最新安裝方法如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 移除舊版本（如果有）</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc<span class="p">;</span> <span class="k">do</span> sudo apt-get remove <span class="nv">$pkg</span> -y<span class="p">;</span> <span class="k">done</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 更新套件列表並安裝相依套件</span>
+</span></span><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get install ca-certificates curl -y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 新增 Docker 官方 GPG 金鑰</span>
+</span></span><span class="line"><span class="cl">sudo install -m <span class="m">0755</span> -d /etc/apt/keyrings
+</span></span><span class="line"><span class="cl">sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+</span></span><span class="line"><span class="cl">sudo chmod a+r /etc/apt/keyrings/docker.asc
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 新增 Docker 官方儲存庫</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  <span class="s2">&#34;deb [arch=</span><span class="k">$(</span>dpkg --print-architecture<span class="k">)</span><span class="s2"> signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+</span></span></span><span class="line"><span class="cl"><span class="s2">  </span><span class="k">$(</span>. /etc/os-release <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nv">UBUNTU_CODENAME</span><span class="k">:-</span><span class="nv">$VERSION_CODENAME</span><span class="si">}</span><span class="s2">&#34;</span><span class="k">)</span><span class="s2"> stable&#34;</span> <span class="p">|</span> <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 更新套件列表並安裝 Docker 和 Docker Compose</span>
+</span></span><span class="line"><span class="cl">sudo apt-get update
+</span></span><span class="line"><span class="cl">sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 將使用者新增到 docker 群組</span>
+</span></span><span class="line"><span class="cl">sudo usermod -aG docker <span class="nv">$USER</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 驗證安裝</span>
+</span></span><span class="line"><span class="cl">docker --version
+</span></span><span class="line"><span class="cl">docker compose version
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 重新登入以套用群組變更（或重新啟動終端）</span>
+</span></span><span class="line"><span class="cl">newgrp docker
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="建立-docker-compose-設定">建立 Docker Compose 設定</h2>
+<h3 id="1-建立專案目錄">1. 建立專案目錄</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir n8n-docker
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> n8n-docker
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-建立目錄結構">2. 建立目錄結構</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mkdir -p <span class="o">{</span>data,postgres-data,caddy/data,caddy/config<span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3-建立-docker-compose-檔案">3. 建立 Docker Compose 檔案</h3>
+<p>建立 <code>docker-compose.yml</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3.8&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">services</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">postgres</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">postgres:15</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">n8n-postgres</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">POSTGRES_USER=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">POSTGRES_PASSWORD=your-strong-password</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">POSTGRES_DB=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./postgres-data:/var/lib/postgresql/data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">healthcheck</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;CMD-SHELL&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pg_isready -h localhost -U n8n&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l">5s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l">5s</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">retries</span><span class="p">:</span><span class="w"> </span><span class="m">10</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">n8n</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">n8nio/n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">postgres</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l">service_healthy</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_TYPE=postgresdb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_HOST=postgres</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_PORT=5432</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_NAME=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_USER=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_PASSWORD=your-strong-password</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_HOST=your-domain.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_PORT=5678</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_PROTOCOL=https</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">WEBHOOK_URL=https://your-domain.com/</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">GENERIC_TIMEZONE=Asia/Taipei</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;5678:5678&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./data:/home/node/.n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l">n8n start</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">caddy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">caddy:2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">n8n-caddy</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;80:80&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;443:443&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./Caddyfile:/etc/caddy/Caddyfile</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./caddy/data:/data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./caddy/config:/config</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="4-建立-caddyfile反向代理和-ssl">4. 建立 Caddyfile（反向代理和 SSL）</h3>
+<p>建立 <code>Caddyfile</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">your</span><span class="o">-</span><span class="n">domain</span><span class="o">.</span><span class="n">com</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">reverse_proxy</span> <span class="n">n8n</span><span class="p">:</span><span class="mi">5678</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 增強安全性設定</span>
+</span></span><span class="line"><span class="cl">    <span class="n">header</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># 移除伺服器識別</span>
+</span></span><span class="line"><span class="cl">        <span class="o">-</span><span class="n">Server</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1"># 安全標頭</span>
+</span></span><span class="line"><span class="cl">        <span class="n">X</span><span class="o">-</span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="o">-</span><span class="n">Options</span> <span class="n">nosniff</span>
+</span></span><span class="line"><span class="cl">        <span class="n">X</span><span class="o">-</span><span class="n">Frame</span><span class="o">-</span><span class="n">Options</span> <span class="n">DENY</span>
+</span></span><span class="line"><span class="cl">        <span class="n">X</span><span class="o">-</span><span class="n">XSS</span><span class="o">-</span><span class="n">Protection</span> <span class="s2">&#34;1; mode=block&#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Referrer</span><span class="o">-</span><span class="n">Policy</span> <span class="n">strict</span><span class="o">-</span><span class="n">origin</span><span class="o">-</span><span class="n">when</span><span class="o">-</span><span class="n">cross</span><span class="o">-</span><span class="n">origin</span>
+</span></span><span class="line"><span class="cl">        
+</span></span><span class="line"><span class="cl">        <span class="c1"># HSTS</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Strict</span><span class="o">-</span><span class="n">Transport</span><span class="o">-</span><span class="n">Security</span> <span class="s2">&#34;max-age=31536000; includeSubDomains; preload&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># 記錄存取日誌</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">log</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">output</span> <span class="n">file</span> <span class="o">/</span><span class="k">var</span><span class="o">/</span><span class="nb">log</span><span class="o">/</span><span class="n">caddy</span><span class="o">/</span><span class="n">access</span><span class="o">.</span><span class="n">log</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="n">roll_size</span> <span class="mi">100</span><span class="n">mb</span>
+</span></span><span class="line"><span class="cl">            <span class="n">roll_keep</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="啟動-n8n">啟動 n8n</h2>
+<h3 id="1-設定環境變數">1. 設定環境變數</h3>
+<p>建立 <code>.env</code> 檔案（選用）：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 資料庫設定</span>
+</span></span><span class="line"><span class="cl"><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>your-very-strong-password-here
+</span></span><span class="line"><span class="cl"><span class="nv">N8N_DATABASE_PASSWORD</span><span class="o">=</span>your-very-strong-password-here
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># n8n 設定</span>
+</span></span><span class="line"><span class="cl"><span class="nv">N8N_HOST</span><span class="o">=</span>your-domain.com
+</span></span><span class="line"><span class="cl"><span class="nv">WEBHOOK_URL</span><span class="o">=</span>https://your-domain.com/
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 時區設定</span>
+</span></span><span class="line"><span class="cl"><span class="nv">GENERIC_TIMEZONE</span><span class="o">=</span>Asia/Taipei
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-更新-docker-composeyml-使用環境變數">2. 更新 docker-compose.yml 使用環境變數</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;3.8&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">services</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">postgres</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">postgres:15</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">n8n-postgres</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">POSTGRES_USER=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">POSTGRES_PASSWORD=${POSTGRES_PASSWORD}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">POSTGRES_DB=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./postgres-data:/var/lib/postgresql/data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">n8n</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l">n8nio/n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">container_name</span><span class="p">:</span><span class="w"> </span><span class="l">n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">restart</span><span class="p">:</span><span class="w"> </span><span class="l">unless-stopped</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">postgres</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_TYPE=postgresdb</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_HOST=postgres</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_PORT=5432</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_NAME=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_USER=n8n</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_DATABASE_PASSWORD=${N8N_DATABASE_PASSWORD}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_HOST=${N8N_HOST}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_PORT=5678</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">N8N_PROTOCOL=https</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">WEBHOOK_URL=${WEBHOOK_URL}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">GENERIC_TIMEZONE=${GENERIC_TIMEZONE}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">ports</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="s2">&#34;5678:5678&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">./data:/home/node/.n8n</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3-啟動服務">3. 啟動服務</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 檢查設定檔語法</span>
+</span></span><span class="line"><span class="cl">docker compose config
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 啟動所有服務</span>
+</span></span><span class="line"><span class="cl">docker compose up -d
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看服務狀態</span>
+</span></span><span class="line"><span class="cl">docker compose ps
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看日誌</span>
+</span></span><span class="line"><span class="cl">docker compose logs -f n8n
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="初始設定">初始設定</h2>
+<h3 id="1-訪問-n8n-界面">1. 訪問 n8n 界面</h3>
+<p>開啟瀏覽器前往 <code>https://your-domain.com</code>，你應該會看到 n8n 的設定頁面。</p>
+<h3 id="2-建立管理員帳號">2. 建立管理員帳號</h3>
+<p>填寫以下資訊：</p>
+<ul>
+<li>Email</li>
+<li>姓名</li>
+<li>密碼</li>
+</ul>
+<h3 id="3-設定工作區名稱">3. 設定工作區名稱</h3>
+<p>為你的 n8n 實例設定一個有意義的名稱。</p>
+<h2 id="進階設定">進階設定</h2>
+<h3 id="1-啟用執行資料持久化">1. 啟用執行資料持久化</h3>
+<p>在 <code>docker-compose.yml</code> 中新增環境變數：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">EXECUTIONS_DATA_SAVE_ON_ERROR=all</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">EXECUTIONS_DATA_SAVE_ON_SUCCESS=all</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">EXECUTIONS_DATA_MAX_AGE=168 </span><span class="w"> </span><span class="c"># 7天</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-設定-smtp-郵件通知">2. 設定 SMTP 郵件通知</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">N8N_EMAIL_MODE=smtp</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">N8N_SMTP_HOST=smtp.gmail.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">N8N_SMTP_PORT=587</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">N8N_SMTP_USER=your-email@gmail.com</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">N8N_SMTP_PASS=your-app-password</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">N8N_SMTP_SENDER=your-email@gmail.com</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3-增加記憶體限制">3. 增加記憶體限制</h3>
+<p>如果需要處理大量資料：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="l">NODE_OPTIONS=--max-old-space-size=4096</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="4-設定備份腳本">4. 設定備份腳本</h3>
+<p>建立 <code>backup.sh</code>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="cp">#!/bin/bash
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="nv">DATE</span><span class="o">=</span><span class="k">$(</span>date +%Y%m%d_%H%M%S<span class="k">)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&#34;./backups&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 建立備份目錄</span>
+</span></span><span class="line"><span class="cl">mkdir -p <span class="nv">$BACKUP_DIR</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 備份 PostgreSQL 資料庫</span>
+</span></span><span class="line"><span class="cl">docker compose <span class="nb">exec</span> -T postgres pg_dump -U n8n n8n &gt; <span class="s2">&#34;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/n8n_db_</span><span class="nv">$DATE</span><span class="s2">.sql&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 備份 n8n 資料目錄</span>
+</span></span><span class="line"><span class="cl">tar -czf <span class="s2">&#34;</span><span class="nv">$BACKUP_DIR</span><span class="s2">/n8n_data_</span><span class="nv">$DATE</span><span class="s2">.tar.gz&#34;</span> ./data
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 保留最近 7 天的備份</span>
+</span></span><span class="line"><span class="cl">find <span class="nv">$BACKUP_DIR</span> -name <span class="s2">&#34;*.sql&#34;</span> -mtime +7 -delete
+</span></span><span class="line"><span class="cl">find <span class="nv">$BACKUP_DIR</span> -name <span class="s2">&#34;*.tar.gz&#34;</span> -mtime +7 -delete
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Backup completed: </span><span class="nv">$DATE</span><span class="s2">&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>設定定期備份：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 讓腳本可執行</span>
+</span></span><span class="line"><span class="cl">chmod +x backup.sh
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 新增到 crontab（每天凌晨 2 點執行）</span>
+</span></span><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;0 2 * * * /path/to/n8n-docker/backup.sh&#34;</span> <span class="p">|</span> crontab -
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="監控和維護">監控和維護</h2>
+<h3 id="1-查看系統資源使用">1. 查看系統資源使用</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 查看容器資源使用情況</span>
+</span></span><span class="line"><span class="cl">docker stats
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 查看磁碟使用情況</span>
+</span></span><span class="line"><span class="cl">du -sh ./data ./postgres-data
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-更新-n8n">2. 更新 n8n</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 拉取最新映像檔</span>
+</span></span><span class="line"><span class="cl">docker compose pull
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 重新啟動服務</span>
+</span></span><span class="line"><span class="cl">docker compose up -d
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 清理舊映像檔</span>
+</span></span><span class="line"><span class="cl">docker image prune -f
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3-日誌管理">3. 日誌管理</h3>
+<p>設定日誌輪轉以避免磁碟空間不足：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">logging</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">driver</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;json-file&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">options</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-size</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;10m&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">max-file</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;3&#34;</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="安全性考量">安全性考量</h2>
+<h3 id="1-防火牆設定">1. 防火牆設定</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 只允許 HTTP/HTTPS 和 SSH</span>
+</span></span><span class="line"><span class="cl">sudo ufw allow <span class="m">22</span>
+</span></span><span class="line"><span class="cl">sudo ufw allow <span class="m">80</span>
+</span></span><span class="line"><span class="cl">sudo ufw allow <span class="m">443</span>
+</span></span><span class="line"><span class="cl">sudo ufw <span class="nb">enable</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="2-定期更新">2. 定期更新</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 系統更新</span>
+</span></span><span class="line"><span class="cl">sudo apt update <span class="o">&amp;&amp;</span> sudo apt upgrade -y
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Docker 映像檔更新</span>
+</span></span><span class="line"><span class="cl">docker compose pull <span class="o">&amp;&amp;</span> docker compose up -d
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="3-強化-postgresql">3. 強化 PostgreSQL</h3>
+<p>在 <code>docker-compose.yml</code> 中新增：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">postgres</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p">&gt;</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">    postgres
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c shared_preload_libraries=pg_stat_statements
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c max_connections=200
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c shared_buffers=256MB
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c effective_cache_size=1GB
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c maintenance_work_mem=64MB
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c checkpoint_completion_target=0.9
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c wal_buffers=16MB
+</span></span></span><span class="line"><span class="cl"><span class="sd">    -c default_statistics_target=100</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="故障排除">故障排除</h2>
+<h3 id="常見問題">常見問題</h3>
+<ol>
+<li>
+<p><strong>n8n 無法連接到資料庫</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 檢查 PostgreSQL 是否正常運行</span>
+</span></span><span class="line"><span class="cl">docker compose logs postgres
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 檢查連接字串是否正確</span>
+</span></span><span class="line"><span class="cl">docker compose <span class="nb">exec</span> postgres psql -U n8n -d n8n
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>SSL 憑證問題</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 檢查 Caddy 日誌</span>
+</span></span><span class="line"><span class="cl">docker compose logs caddy
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 手動重新載入 Caddy 設定</span>
+</span></span><span class="line"><span class="cl">docker compose <span class="nb">exec</span> caddy caddy reload --config /etc/caddy/Caddyfile
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><strong>記憶體不足</strong></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 增加 swap 空間</span>
+</span></span><span class="line"><span class="cl">sudo fallocate -l 2G /swapfile
+</span></span><span class="line"><span class="cl">sudo chmod <span class="m">600</span> /swapfile
+</span></span><span class="line"><span class="cl">sudo mkswap /swapfile
+</span></span><span class="line"><span class="cl">sudo swapon /swapfile
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h2 id="結語">結語</h2>
+<p>使用 Docker Compose 自架 n8n 讓你能夠完全控制自己的自動化工作流程平台。記得定期備份資料、更新系統，並監控服務狀態。透過 n8n，你可以輕鬆整合各種服務，提升工作效率。</p>
+<p>如果在設定過程中遇到問題，可以參考 <a href="https://docs.n8n.io/" target="_blank">n8n 官方文件</a> 或在社群中尋求協助。</p>
+<hr>
+<p><em>想了解更多自架服務相關內容，歡迎關注我的部落格後續文章！</em></p>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新於 2024-12-30</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span>
+                            <a class="link-to-markdown" href="/2024/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-docker-compose-%E8%87%AA%E6%9E%B6-n8n-%E8%87%AA%E5%8B%95%E5%8C%96%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E5%B9%B3%E5%8F%B0/index.md" target="_blank">閱讀原始文檔</a>
+                        </span></div>
+            <div class="post-info-share">
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/n8n/">N8n</a>,&nbsp;<a href="/tags/docker/">Docker</a>,&nbsp;<a href="/tags/docker-compose/">Docker Compose</a>,&nbsp;<a href="/tags/%E8%87%AA%E5%8B%95%E5%8C%96/">自動化</a>,&nbsp;<a href="/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B/">工作流程</a>,&nbsp;<a href="/tags/self-hosting/">Self-Hosting</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主頁</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/2024/12/%E8%A7%A3%E6%B1%BA-cursor-agent-%E5%9C%A8-zsh-%E7%92%B0%E5%A2%83%E4%B8%8B%E7%84%A1%E6%B3%95%E5%81%B5%E6%B8%AC%E6%8C%87%E4%BB%A4%E7%B5%90%E6%9D%9F%E7%9A%84%E5%95%8F%E9%A1%8C/" class="prev" rel="prev" title="解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題</a></div>
+</div>
+</article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line">由 <a href="https://gohugo.io/" target="_blank" rel="noopener noreffer" title="Hugo 0.147.9">Hugo</a> 強力驅動 | 主題 - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden="true"></i> LoveIt</a>
+                </div><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2021 - 2025</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank">ChihFeng Lien</a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到頂部">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看評論">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><script type="text/javascript" src="/lib/autocomplete/autocomplete.min.js"></script><script type="text/javascript" src="lib/algoliasearch/algoliasearch-lite.umd.min.js"></script><script type="text/javascript" src="/lib/lazysizes/lazysizes.min.js"></script><script type="text/javascript" src="/lib/clipboard/clipboard.min.js"></script><script type="text/javascript" src="/lib/typeit/index.umd.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"複製到剪貼板","maxShownLines":10},"comment":{},"data":{"id-1":"工程師的摳頂人生","id-2":"工程師的摳頂人生"},"search":{"algoliaAppID":"LH78QXSWHO","algoliaIndex":"blog","algoliaSearchKey":"2db3fe0c7a61fcb27ab26d4b04fee8d6","highlightTag":"em","maxResultLength":10,"noResultsFound":"沒有找到結果","snippetLength":50,"type":"algolia"},"typeit":{"cursorChar":"|","cursorSpeed":1000,"data":{"id-1":["id-1"],"id-2":["id-2"]},"duration":-1,"speed":100}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

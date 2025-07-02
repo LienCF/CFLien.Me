@@ -61,4 +61,4 @@ Disallow: /
 User-agent: ZoominfoBot
 Disallow: /
 
-Sitemap: https://cflien.me/en/sitemap.xml
+Sitemap: https://cflien.me/sitemap.xml

@@ -2,7 +2,23 @@
 {{- $section := $.Site.GetPage "section" .Section}}
 {{- range .Site.AllPages -}}
   {{- if or (and (.IsDescendant $section) (and (not .Draft) (not .Params.private))) $section.IsHome -}}
-    {{- $.Scratch.Add "index" (dict "objectID" .UniqueID "date" .Date.UTC.Unix "description" .Description "dir" .Dir "expirydate" .ExpiryDate.UTC.Unix "fuzzywordcount" .FuzzyWordCount "keywords" .Keywords "kind" .Kind "lang" .Lang "lastmod" .Lastmod.UTC.Unix "permalink" .Permalink "publishdate" .PublishDate "readingtime" .ReadingTime "relpermalink" .RelPermalink "summary" .Summary "title" .Title "type" .Type "url" .URL "weight" .Weight "wordcount" .WordCount "section" .Section "tags" .Params.Tags "categories" .Params.Categories "authors" .Params.Authors)}}
+    {{- $objectID := "" -}}
+    {{- with .File -}}{{- $objectID = .UniqueID -}}{{- else -}}{{- $objectID = .RelPermalink -}}{{- end -}}
+    {{- $dir := "" -}}
+    {{- if .File -}}{{- with .File.Dir -}}{{- $dir = . -}}{{- end -}}{{- end -}}
+    {{- $description := "" -}}
+    {{- with .Description -}}{{- $description = . -}}{{- end -}}
+    {{- $keywords := slice -}}
+    {{- with .Keywords -}}{{- $keywords = . -}}{{- end -}}
+    {{- $summary := "" -}}
+    {{- with .Summary -}}{{- $summary = . -}}{{- end -}}
+    {{- $tags := slice -}}
+    {{- with .Params.Tags -}}{{- $tags = . -}}{{- end -}}
+    {{- $categories := slice -}}
+    {{- with .Params.Categories -}}{{- $categories = . -}}{{- end -}}
+    {{- $authors := slice -}}
+    {{- with .Params.Authors -}}{{- $authors = . -}}{{- end -}}
+    {{- $.Scratch.Add "index" (dict "objectID" $objectID "date" .Date.UTC.Unix "description" $description "dir" $dir "expirydate" .ExpiryDate.UTC.Unix "fuzzywordcount" .FuzzyWordCount "keywords" $keywords "kind" .Kind "lang" .Lang "lastmod" .Lastmod.UTC.Unix "permalink" .Permalink "publishdate" .PublishDate "readingtime" .ReadingTime "relpermalink" .RelPermalink "summary" $summary "title" .Title "type" .Type "url" .URL "weight" .Weight "wordcount" .WordCount "section" .Section "tags" $tags "categories" $categories "authors" $authors)}}
   {{- end -}}
 {{- end -}}
 {{- $.Scratch.Get "index" | jsonify -}}

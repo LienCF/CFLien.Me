@@ -1,4 +1,3 @@
-
 baseURL = "https://cflien.me/"
 # [en, zh-tw, fr, pl, ...] determines default content language
 # [en, zh-tw, fr, pl, ...] 设置默认的语言
@@ -24,6 +23,11 @@ enableGitInfo = false
 # 是否使用 emoji 代码
 enableEmoji = true
 
+# pagination settings
+# 分頁設定
+[pagination]
+  pagerSize = 12
+
 [languages]
   [languages.en]
     weight = 1
@@ -33,8 +37,6 @@ enableEmoji = true
     languageName = "English"
     # whether to include Chinese/Japanese/Korean
     hasCJKLanguage = true
-    # default amount of posts in each pages
-    paginate = 12
     # [UA-XXXXXXXX-X] google analytics code
     googleAnalytics = "G-75TS27309M"
     # copyright description used only for seo schema
@@ -157,18 +159,18 @@ enableEmoji = true
         [languages.en.params.home.posts]
           enable = true
           # special amount of posts in each home posts page
-          paginate = 6
+          pagerSize = 6
       # Social config in home page
       [languages.en.params.social]
-        GitHub = "xxxx"
-        Linkedin = ""
-        Twitter = "xxxx"
-        Instagram = "xxxx"
-        Facebook = "xxxx"
-        Telegram = "xxxx"
+        GitHub = "LienCF"
+        Linkedin = "alex-lien-68593779"
+        Twitter = "aiwa"
+        Instagram = ""
+        Facebook = ""
+        Telegram = ""
         Medium = ""
         Gitlab = ""
-        Youtubelegacy = "xxxx"
+        Youtubelegacy = ""
         Youtubecustom = ""
         Youtubechannel = ""
         Tumblr = ""
@@ -221,11 +223,8 @@ enableEmoji = true
         XMPP = ""
         Matrix = ""
         Bilibili = ""
-        Email = "xxxx@xxxx.com"
+        Email = "liencf@gmail.com"
         RSS = true
-        [languages.en.params.social.Mastodon]
-          id = "@xxxx"
-          prefix = "https://mastodon.technology/"
 
   [languages.zh-tw]
     weight = 2
@@ -235,8 +234,6 @@ enableEmoji = true
     languageName = "正體中文"
     # 是否包括中日韩文字
     hasCJKLanguage = true
-    # 默认每页列表显示的文章数目
-    paginate = 12
     # [UA-XXXXXXXX-X] 谷歌分析代号
     googleAnalytics = "G-75TS27309M"
     # 版权描述，仅仅用于 SEO
@@ -357,7 +354,7 @@ enableEmoji = true
         [languages.zh-tw.params.home.posts]
           enable = true
           # 主页每页显示文章数量
-          paginate = 6
+          pagerSize = 6
       # 主页的社交信息设置
       [languages.zh-tw.params.social]
         GitHub = "LienCF"
@@ -652,7 +649,7 @@ enableEmoji = true
     # Comment config
     # 评论系统设置
     [params.page.comment]
-      enable = false
+      enable = true
       # Disqus comment config (https://disqus.com/)
       # Disqus 评论系统设置 (https://disqus.com/)
       [params.page.comment.disqus]
@@ -877,7 +874,7 @@ enableEmoji = true
 
 # Author config
 # 作者配置
-[author]
+[params.Author]
   name = "ChihFeng Lien"
   email = "liencf@gmail.com"
   link = ""
@@ -902,7 +899,7 @@ enableEmoji = true
   # Google Analytics 相关隐私 (被 params.analytics.google 替代)
   [privacy.googleAnalytics]
     # ...
-  [privacy.twitter]
+  [privacy.x]
     enableDNT = true
   [privacy.youtube]
     privacyEnhanced = true
@@ -923,11 +920,11 @@ enableEmoji = true
 # Options to make hugo output files
 # 用于 Hugo 输出文档的设置
 [outputs]
-  home = ["HTML", "RSS", "JSON", "Algolia"]
+  home = ["HTML", "RSS", "JSON"]
   page = ["HTML", "MarkDown"]
   section = ["HTML", "RSS"]
   taxonomy = ["HTML", "RSS"]
-  taxonomyTerm = ["HTML"]
+  term = ["HTML", "RSS"]
 
 [outputFormats.Algolia]
   baseName = "algolia"
@@ -941,3 +938,5 @@ enableEmoji = true
   searchOnlyKey = "2db3fe0c7a61fcb27ab26d4b04fee8d6"
   vars = ["title", "summary", "date", "publishdate", "expirydate", "permalink"] 
   params = ["categories", "tags", "series"]
+
+

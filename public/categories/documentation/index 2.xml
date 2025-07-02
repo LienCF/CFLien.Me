@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>文件 on LoveIt</title>
+    <link>https://cflien.me/categories/documentation/</link>
+    <description>Recent content in 文件 on LoveIt</description>
+    <generator>Hugo</generator>
+    <language>zh-TW</language>
+    <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+    <lastBuildDate>Wed, 26 Jun 2024 19:30:00 +0800</lastBuildDate>
+    <atom:link href="https://cflien.me/categories/documentation/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hugo 快速入門指南</title>
+      <link>https://cflien.me/2024/06/hugo-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Wed, 26 Jun 2024 19:30:00 +0800</pubDate>
+      <guid>https://cflien.me/2024/06/hugo-%E5%BF%AB%E9%80%9F%E5%85%A5%E9%96%80%E6%8C%87%E5%8D%97/</guid>
+      <description>&lt;h2 id=&#34;什麼是-hugo&#34;&gt;什麼是 Hugo？&lt;/h2&gt;&#xA;&lt;p&gt;Hugo 是一個快速、靈活的靜態網站產生器，使用 Go 語言編寫。它可以將 Markdown 檔案轉換成完整的網站，非常適合建立部落格、文件網站或企業官網。&lt;/p&gt;&#xA;&lt;h2 id=&#34;為什麼選擇-hugo&#34;&gt;為什麼選擇 Hugo？&lt;/h2&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;strong&gt;極快的建置速度&lt;/strong&gt;：大型網站也能在幾秒內完成建置&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;簡單易用&lt;/strong&gt;：使用 Markdown 撰寫內容&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;豐富的主題&lt;/strong&gt;：數百個免費主題可供選擇&lt;/li&gt;&#xA;&lt;li&gt;&lt;strong&gt;靈活的部署&lt;/strong&gt;：可部署到任何靜態網站託管服務&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h2 id=&#34;安裝-hugo&#34;&gt;安裝 Hugo&lt;/h2&gt;&#xA;&lt;h3 id=&#34;macos-安裝&#34;&gt;macOS 安裝&lt;/h3&gt;&#xA;&lt;p&gt;使用 Homebrew 安裝：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
