@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "algolia": "atomic-algolia",
-    "vercel-build": "hugo version && hugo --gc --minify"
+    "vercel-build": "hugo --gc --minify"
   },
   "repository": {
     "type": "git",
