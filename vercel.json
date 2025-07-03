@@ -1,0 +1,15 @@
+{
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "installCommand": "npm install",
+        "buildCommand": "hugo --gc --minify"
+      }
+    }
+  ],
+  "env": {
+    "HUGO_VERSION": "0.147.9"
+  }
+} 
