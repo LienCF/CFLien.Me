@@ -10,7 +10,7 @@ ALGOLIA_ADMIN_KEY = "0bbb05619b33f71c8a67bb249d5952c8"
 
 
 [context.production.environment]
-HUGO_VERSION = "0.85.0"
+HUGO_VERSION = "0.148.0"
 HUGO_ENV = "production"
 HUGO_ENABLEGITINFO = "true"
 
@@ -18,20 +18,20 @@ HUGO_ENABLEGITINFO = "true"
 command = "hugo --gc --minify --enableGitInfo"
 
 [context.split1.environment]
-HUGO_VERSION = "0.85.0"
+HUGO_VERSION = "0.148.0"
 HUGO_ENV = "production"
 
 [context.deploy-preview]
 command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL"
 
 [context.deploy-preview.environment]
-HUGO_VERSION = "0.85.0"
+HUGO_VERSION = "0.148.0"
 
 [context.branch-deploy]
 command = "hugo --gc --minify -b $DEPLOY_PRIME_URL"
 
 [context.branch-deploy.environment]
-HUGO_VERSION = "0.85.0"
+HUGO_VERSION = "0.148.0"
 
 [context.next.environment]
 HUGO_ENABLEGITINFO = "true"
