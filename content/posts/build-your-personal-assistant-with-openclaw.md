@@ -1,138 +1,60 @@
 ---
-title: "Step-by-Step：從零打造你的 OpenClaw 個人 AI 助理"
+title: "從零開始：打造屬於自己的 OpenClaw AI 貼身助理"
 date: 2026-02-03T18:45:00+08:00
 draft: false
 author: "ChihFeng Lien"
-description: "這是一篇完整的 OpenClaw 安裝與配置教學，帶你從環境準備到建立具備『三層防線』備援機制的個人助理"
-tags: ["OpenClaw", "AI", "教學", "Self-Hosting", "DevOps"]
+description: "紀錄我如何利用 OpenClaw 建立一個具備長期記憶、主動監控與跨平台備援能力的個人 AI 執行助理"
+tags: ["OpenClaw", "AI Agent", "自動化", "SRE", "個人生產力"]
 categories: ["tech"]
 ---
 
-最近我將個人助理全面遷移到了 **OpenClaw**。比起單純使用 ChatGPT 的網頁版，OpenClaw 讓我能完全掌控 AI 的執行環境、記憶以及與各種工具（郵件、行事曆、本地腳本）的整合。
+## 為什麼我不再只用 ChatGPT？
 
-如果你也想打造一個 24 小時在線、且具備「備援機制」的貼身助理，這篇 Step-by-Step 指南就是為你準備的。
+身為一名技術經理，我的日常被無數的 Jira 任務、工作郵件、會議以及投資研究填滿。雖然 ChatGPT 很強，但它始終是一個「被動」的工具——你不問，它不動。而且它缺乏對我私人工作流程（如 Outlook 行事曆或本地檔案）的深度整合。
 
----
+於是我開始嘗試 OpenClaw。這篇文章將分享我如何從零打造一個真正能「幫我分擔工作」的 AI 貼身助理。
 
-## 0. 準備工作
+## 1. 核心大腦：跨平台的智慧中樞
 
-在開始之前，請確保你的環境滿足以下條件：
-- **作業系統**：macOS (推薦) 或 Linux (如 Ubuntu)。Windows 使用者強烈建議透過 **WSL2** 運行。
-- **Node.js**：版本需為 **v22** 以上。
-- **API Key**：建議準備好 Google AI (Gemini) 或 Anthropic (Claude) 的 API Key。
+一個好的助理不能只有一個大腦。為了確保 24/7 不斷線，我為 OpenClaw 配置了「三層防線」：
+- 主力 (Primary)：Gemini 3 Flash (速度快、API 額度大)
+- 備援 (Fallback)：Claude 4.5 Haiku (邏輯極強、性價比最高)
 
----
+這樣的配置讓我即使在頻繁跑 Heartbeat 時，也不必擔心單一 Provider 達到限制。詳情可以參考我上一篇[配置指南](https://www.cflien.me/posts/openclaw-config-guide-three-layer-defense/)。
 
-## 1. 安裝 OpenClaw CLI
+## 2. 長期記憶：讓 AI 懂你的偏好
 
-開啟終端機，執行官方安裝腳本：
+OpenClaw 最強大的地方在於其 Memory 系統。我將助理與我的 Obsidian 庫連動，並建立了一個 MEMORY.md 檔案。它現在記得：
+- 投資偏好：我關注 2337.TW 與 8299.TWO，它會主動追蹤記憶體產業的價格戰動態。
+- 工作習慣：它知道我的深度工作時段，並學會在我忙碌時減少非必要的通知。
+- 決策邏輯：它記得我對技術選型的偏好，以及我對團隊管理的原則。
 
-```bash
-curl -fsSL https://openclaw.bot/install.sh | bash
-```
+## 3. 主動心跳 (Heartbeat)：從被動變主動
 
-或者使用 npm 全域安裝：
+這是助理真正「活過來」的關鍵。透過自定義 HEARTBEAT.md，我讓助理每隔一段時間主動執行：
+- 郵件偵測：掃描 Outlook，若發現 Jenkins 建置失敗或 AWS CloudWatch 警報，立刻透過 Telegram 敲我。
+- 股市監控：當我的持股波動超過 ±5%，它會主動分析原因並提供操作建議（而非只是報價）。
+- 行程預警：在會議前 1 小時提醒我，並附上會議相關的背景資料。
 
-```bash
-npm install -g openclaw@latest
-```
+## 4. 實戰場景：記憶體族群的避險建議
 
-安裝完成後，輸入 `openclaw status` 確認指令是否生效。
+就在今天，台股記憶體族群出現了劇烈的震盪。我的助理在 Heartbeat 週期中主動偵測到了群聯 (8299) 留下了長上影線並崩跌 7.23%。它立刻結合了盤前美股的走勢，給了我一份「保留現金，等待法說」的建議，甚至還寫了幾首詩提醒我不要在震盪期「接掉下來的刀子」。
 
----
+這就是我想要的助理：具備洞察力，且能在關鍵時刻提醒我風險。
 
-## 2. 執行初始化引導 (Onboarding)
+## 5. 持續進化：自主學習系統
 
-這是最關鍵的一步，OpenClaw 內建了強大的引導精靈，幫你處理繁瑣的設定：
-
-```bash
-openclaw onboard --install-daemon
-```
-
-在這個過程中，精靈會詢問你：
-1.  **Gateway 模式**：選擇 `Local` (如果你要在本機運行)。
-2.  **身分驗證 (Auth)**：連結你的 Google 或 Anthropic 帳號。
-3.  **通訊頻道 (Channels)**：設定你要在哪裡跟助理說話（如 Telegram 或 WhatsApp）。
-4.  **守護行程 (Daemon)**：建議開啟，這樣助理在後台會自動重啟。
-
----
-
-## 3. 配置「三層防線」備援機制
-
-身為 SRE，我們不能容許助理因為單一 API 限額而失靈。編輯 `~/.openclaw/openclaw.json`，在 `defaults` 區塊加入以下配置：
-
-```json
-{
-  "agents": {
-    "defaults": {
-      "model": {
-        "primary": "google-gemini-cli/gemini-3-flash-preview",
-        "fallbacks": [
-          "anthropic/claude-haiku-4-5",
-          "github-copilot/claude-haiku-4-5"
-        ]
-      }
-    }
-  }
-}
-```
-
-- **Primary**：日常對話主力，反應最快。
-- **Fallback 1**：當 Gemini 額度用完時，自動換成 Anthropic 原生 API 的 Claude 4.5。
-- **Fallback 2**：最後防線，透過 GitHub Copilot 管道調用 Claude 4.5，確保跨平台可用性。
-
----
-
-## 4. 安裝與管理技能 (Skills)
-
-OpenClaw 的強大在於擴充性。你可以使用 `clawhub` 來搜尋並安裝新技能：
-
-```bash
-# 搜尋技能
-clawhub search weather
-
-# 安裝技能
-clawhub install weather
-```
-
-安裝後，你的助理就立刻具備了查天氣的能力。同理，你可以安裝 `google-workspace`、`jira` 或 `outlook` 等專業工具。
-
----
-
-## 5. 連結通訊軟體 (以 Telegram 為例)
-
-如果你在引導精靈中設定了 Telegram：
-1.  對著你的 Bot 發送第一則訊息。
-2.  回到終端機，你會看到一個 **Pairing Code**。
-3.  執行以下指令核准連線：
-    ```bash
-    openclaw pairing approve telegram <CODE>
-    ```
-
----
-
-## 6. 啟動與驗證
-
-最後，啟動 Gateway 服務：
-
-```bash
-openclaw gateway start
-```
-
-檢查運作狀態：
-```bash
-openclaw gateway status
-openclaw health
-```
-
-現在，你可以對你的助理說：「嘿，幫我檢查一下明天的行程」，它就會開始為你工作了！
-
----
+我目前的助理已經具備了自我進化的邏輯。它會定期自我評估：
+- 「我這週的通知是否打擾到 Alex？」
+- 「有沒有我處理不了但 Alex 頻繁提及的技術需求？」
+- 它甚至能主動去 clawhub 搜尋並安裝新技能（例如 Docker 或 Tailscale 管理工具）。
 
 ## 結語
 
-OpenClaw 不只是一個聊天工具，它是一個**可程式化的自動化平台**。透過這幾步簡單的安裝，你已經擁有了一個具備自我修復（備援）與無限擴充能力的數位大腦。
+打造個人 AI 助理不是為了跟風，而是為了透過技術手段解決真實的「認知負荷」。當 AI 能幫我守住系統監控與市場波動的防線時，我才能把更多精力放在更高層次的決策上。
 
-接下來，你可以嘗試編輯 `MEMORY.md` 來教導它你的個人偏好，讓它越來越像你的貼身助理。
+如果你也想開始嘗試，建議從一個簡單的 openclaw start 開始。歡迎在下方分享你的 AI 助理配置心得！
 
-*Happy Cording!*
+---
+
+「最好的自動化就是讓你感覺不到它在自動化。」
