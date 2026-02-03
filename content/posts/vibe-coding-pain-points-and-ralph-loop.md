@@ -1,9 +1,9 @@
 ---
 title: "打破 Vibe Coding 的「斷頭」魔咒：深度解析 Ralph Loop 與自動化完工法則"
-date: 2026-02-03T22:00:00+08:00
+date: 2026-02-03T22:15:00+08:00
 draft: false
 author: "ChihFeng Lien"
-description: "探討 Vibe Coding 最常見的痛點：AI 工具做到一半就停下來。本文將深入介紹由 Geoffrey Huntley 提出的 Ralph Loop 技術，解析其運作原理、辛普森家庭的命名由來，並詳述 Claude Ralph-Loop 的實戰用法。"
+description: "探討 Vibe Coding 最常見的痛點：AI 工具做到一半就停下來。本文將深入介紹由 Geoffrey Huntley 提出的 Ralph Loop 技術，包含 Anthropic 官方插件的實戰用法、辛普森家庭的命名由來，以及如何寫出不讓 AI 偷懶的 Prompt。"
 tags: ["Vibe Coding", "Ralph Loop", "Geoffrey Huntley", "Claude Code", "AI Agents", "自動化", "SRE"]
 categories: ["tech"]
 ---
@@ -32,54 +32,56 @@ Geoffrey 認為與其追求 AI 一次性噴出完美代碼，不如建立一個�
 傳統的 AI 助手（如一般的 Chat 介面）在任務處理到一半時，常因為 Token 限制或邏輯自滿，就回報「我修好了」並退出對話。Ralph Loop 透過以下機制打破了這個魔咒：
 
 ### 1. 攔截器 (Stop Hook)
-Ralph Loop 的技術核心是在工具（如 Claude Code 或自定義的 Agent 腳本）中植入一個 **Stop Hook**。當 AI 嘗試發出「結束對話」或「退出」的指令時，這個 Hook 會自動攔截該動作。
+Ralph Loop 的技術核心是在工具中植入一個 **Stop Hook**。當 AI 嘗試發出「結束對話」或「退出」的指令時，這個 Hook 會自動攔截該動作。
 
 ### 2. 自動化驗證 (The "DONE" Check)
 Hook 會立即執行預設的「驗證任務」：
 *   **編譯檢查**：程式碼跑得起來嗎？
 *   **測試驗證**：所有 Test Case 都綠燈了嗎？
-*   **輸出標誌**：是否正確輸出了 `DONE`？
+*   **輸出標誌**：是否正確輸出了你指定的「完工承諾 (Completion Promise)」。
 
 如果驗證失敗，Hook 會毫不留情地把 AI **「踢回對話中」**，並把報錯日誌直接餵給它，逼它繼續修。
 
 ---
 
-## 2026 實戰：Claude Ralph-Loop 工具
+## 2026 實戰：Claude Code 的 Ralph Wiggum 插件
 
-到了 2026 年，Ralph Loop 已經發展出了更成熟的實作方式，特別是針對 **Claude Code (Anthropic 官方 CLI)**。許多開發者會使用專門的 **Ralph-Loop MCP (Model Context Protocol) Server** 或 **Bash Wrapper**。
+到了 2026 年，Anthropic 的官方 CLI 工具 **Claude Code** 已經透過插件形式整合了這項技術。
 
-### 1. 核心用法：極簡 Bash 迴圈
-Geoffrey Huntley 最推崇的「純血版」用法並不是什麼複雜的插件，而是一段極其強大的 Bash 腳本：
+### 核心用法：`/ralph-loop` 指令
+安裝插件後，你可以直接在 Session 中啟動：
 
 ```bash
-while :; do cat PROMPT.md | claude-code ; done
+/ralph-loop "幫我建立一個 Todo REST API，包含 CRUD 與單元測試。當全部完成且測試通過後，輸出 <promise>COMPLETE</promise>" --completion-promise "COMPLETE" --max-iterations 20
 ```
 
-**原理**：
-*   你將所有的意圖、規格 (SDD) 與測試準則寫在 `PROMPT.md`。
-*   這個迴圈會不斷地將需求餵給 Claude。
-*   如果 Claude 嘗試退出（可能因為它以為做完了），迴圈會立刻啟動下一次 Session，讓 Claude 重新讀取當前工作目錄的狀態。
-*   因為 Claude Code 具備讀取檔案的能力，它在下一輪會發現：「喔！原來測試還沒過」，然後繼續修復。
+**參數解析**：
+*   `--completion-promise`：定義一個關鍵字。除非 Claude 輸出這個詞，否則 Loop 永不結束。
+*   `--max-iterations`：這是你的「保險絲」，防止 AI 陷入無限迴圈浪費 Token。
 
-### 2. Ralph-Loop MCP 插件
-如果你使用的是 Claude Desktop，現在有第三方開發的 **Ralph MCP**。它提供了一個 `signal_status` 工具：
-*   **用法**：在 System Prompt 中規定，AI 必須在每一步之後調用 `signal_status`。
-*   **效果**：如果 `signal_status` 回報為 `INCOMPLETE`，系統會自動注入一個「請繼續完成剩餘任務」的 User Message，強制 AI 續接斷點。
+### 為什麼這比純 Bash 迴圈強？
+雖然 Geoffrey 最初的傳奇是從 **5 行 Bash 腳本** (`while :; do cat PROMPT.md | claude-code ; done`) 開始的，但插件版能更好地繼承 Session 內部的上下文，讓 AI 清楚記得前一輪嘗試了哪些失敗的路徑。
 
 ---
 
 ## 如何下 Ralph Loop Prompt？最佳實踐
 
-要啟動 Ralph 的靈魂，你的 Prompt 必須具備「退出門檻」：
+要啟動 Ralph 的靈魂，你的 Prompt 必須具備「退出門檻」。根據官方 README 與社群經驗，以下是最佳實踐：
 
-### 最佳實踐 1：定義「下班條件」 (Exit Criteria)
+### 1. 明確定義「完工準則」 (Exit Criteria)
+✅ **推薦寫法**：
 > 「執行重構任務直到滿足以下條件：
 > 1. 執行 `npm test` 全部通過。
-> 2. 執行 `git status` 確認沒有遺漏未修改的關聯檔案。
-> **在達成上述條件前，不准發出結束對話的指令。若失敗，請讀取錯誤訊息並重試。**」
+> 2. 測試覆蓋率大於 80%。
+> 3. 輸出: <promise>COMPLETE</promise>」
 
-### 最佳實踐 2：禁止道歉，直接行動
-> 「這是一個 Ralph Loop 任務。如果遇到報錯，**禁止道歉**，禁止解釋原因。請直接輸出修正後的程式碼並重新執行驗證工具。直到滿足 DONE 的標準為止。」
+### 2. 階段性任務引導
+不要試圖一次 Vibe 出一個電商平台。將複雜任務切分為 Phase 1, 2, 3，並在 Prompt 中寫明：
+> 「當 Phase 1 完成後，請自動開始 Phase 2，直到所有 Phase 結束才輸出 COMPLETE。」
+
+### 3. 禁止道歉，直接行動
+在 Ralph Loop 中，AI 的道歉是浪費 Token。
+> 「這是一個 Ralph Loop 任務。如果遇到報錯，**禁止道歉**。請直接讀取錯誤訊息，分析原因並嘗試不同的重構路徑。」
 
 ---
 
@@ -87,8 +89,12 @@ while :; do cat PROMPT.md | claude-code ; done
 
 Vibe Coding 賦予了我們創造的靈魂，而 **Ralph Loop** 則賦予了這靈魂「工程師的紀律」。
 
-在我的「摳頂人生」實戰中，自從引入了 Ralph Loop 邏輯，我不再需要手動幫 AI 收尾。我只需要定義好「成功的樣子」，然後看著那個天真又堅韌的 Ralph 幫我把程式碼修到完美。
+在我的「摳頂人生」實戰中，Ralph Loop 曾幫助開發者創造過驚人的戰績：有人在一夜之間生成了 6 個完整的倉庫，甚至有人僅花費 **$297** 的 API 成本就完成了一份價值 **$50,000** 的開發合約。
 
 下次當你的 AI 助理又想偷懶停下來時，試著對它說：「Hey, let's play Ralph Loop!」
 
 *Happy Vibe Coding, and keep the loop running!*
+
+---
+
+*資料來源參考：[Claude Code Ralph Wiggum Plugin README](https://github.com/anthropics/claude-code/blob/main/plugins/ralph-wiggum/README.md)*
