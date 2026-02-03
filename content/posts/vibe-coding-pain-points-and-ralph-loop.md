@@ -1,10 +1,10 @@
 ---
 title: "打破 Vibe Coding 的「斷頭」魔咒：深度解析 Ralph Loop 與自動化完工法則"
-date: 2026-02-03T22:00:00+08:00
+date: 2026-02-03T22:10:00+08:00
 draft: false
 author: "ChihFeng Lien"
-description: "探討 Vibe Coding 最常見的痛點：AI 工具做到一半就停下來。本文將深入介紹由 Geoffrey Huntley 提出的 Ralph Loop 技術，解析其運作原理、辛普森家庭的命名由來，並提供實戰應用。"
-tags: ["Vibe Coding", "Ralph Loop", "Geoffrey Huntley", "AI Agents", "自動化", "SRE"]
+description: "探討 Vibe Coding 最常見的痛點：AI 工具做到一半就停下來。本文將深入介紹由 Geoffrey Huntley 提出的 Ralph Loop 技術，解析其運作原理、辛普森家庭的命名由來，並詳述 Claude Ralph-Loop 的實戰用法。"
+tags: ["Vibe Coding", "Ralph Loop", "Geoffrey Huntley", "Claude Code", "AI Agents", "自動化", "SRE"]
 categories: ["tech"]
 ---
 
@@ -42,25 +42,44 @@ Hook 會立即執行預設的「驗證任務」：
 
 如果驗證失敗，Hook 會毫不留情地把 AI **「踢回對話中」**，並把報錯日誌直接餵給它，逼它繼續修。
 
-### 3. 最初的形式：5 行 Bash
-最令人驚嘆的是，這個改變開發範式的技術，最早其實只是一段 **5 行左右的 Bash 迴圈腳本**。它簡單地封裝了指令介面，讓 AI 在「成功」之前永遠處於 `while true` 的狀態。
+---
+
+## 2026 實戰：Claude Ralph-Loop 工具
+
+到了 2026 年，Ralph Loop 已經發展出了更成熟的實作方式，特別是針對 **Claude Code (Anthropic 官方 CLI)**。許多開發者會使用專門的 **Ralph-Loop MCP (Model Context Protocol) Server** 或 **Bash Wrapper**。
+
+### 1. 核心用法：極簡 Bash 迴圈
+Geoffrey Huntley 最推崇的「純血版」用法並不是什麼複雜的插件，而是一段極其強大的 Bash 腳本：
+
+```bash
+while :; do cat PROMPT.md | claude-code ; done
+```
+
+**原理**：
+*   你將所有的意圖、規格 (SDD) 與測試準則寫在 `PROMPT.md`。
+*   這個迴圈會不斷地將需求餵給 Claude。
+*   如果 Claude 嘗試退出（可能因為它以為做完了），迴圈會立刻啟動下一次 Session，讓 Claude 重新讀取當前工作目錄的狀態。
+*   因為 Claude Code 具備讀取檔案的能力，它在下一輪會發現：「喔！原來測試還沒過」，然後繼續修復。
+
+### 2. Ralph-Loop MCP 插件
+如果你使用的是 Claude Desktop，現在有第三方開發的 **Ralph MCP**。它提供了一個 `signal_status` 工具：
+*   **用法**：在 System Prompt 中規定，AI 必須在每一步之後調用 `signal_status`。
+*   **效果**：如果 `signal_status` 回報為 `INCOMPLETE`，系統會自動注入一個「請繼續完成剩餘任務」的 User Message，強制 AI 續接斷點。
 
 ---
 
-## 實戰：如何下 Ralph Loop Prompt？
+## 如何下 Ralph Loop Prompt？最佳實踐
 
-要讓你的 AI Agent 跑起 Ralph Loop，你必須給它一個**「強制性的自我審計邏輯」**。以下是最佳實踐：
+要啟動 Ralph 的靈魂，你的 Prompt 必須具備「退出門檻」：
 
-### 最佳實踐 1：明確定義「下班條件」
-不要只說「幫我重構」，要說：
+### 最佳實踐 1：定義「下班條件」 (Exit Criteria)
 > 「執行重構任務直到滿足以下條件：
 > 1. 執行 `npm test` 全部通過。
 > 2. 執行 `git status` 確認沒有遺漏未修改的關聯檔案。
 > **在達成上述條件前，不准發出結束對話的指令。若失敗，請讀取錯誤訊息並重試。**」
 
-### 最佳實踐 2：注入 Ralph Wiggum 的精神
-在 Prompt 中強調不懈的特質：
-> 「這是一個 Ralph Loop 任務。即便你遇到挫折或重複報錯，請發揮 Ralph Wiggum 的樂觀精神，分析失敗點並嘗試不同的重構路徑，直到系統恢復穩定。」
+### 最佳實踐 2：禁止道歉，直接行動
+> 「這是一個 Ralph Loop 任務。如果遇到報錯，**禁止道歉**，禁止解釋原因。請直接輸出修正後的程式碼並重新執行驗證工具。直到滿足 DONE 的標準為止。」
 
 ---
 
@@ -68,7 +87,7 @@ Hook 會立即執行預設的「驗證任務」：
 
 Vibe Coding 賦予了我們創造的靈魂，而 **Ralph Loop** 則賦予了這靈魂「工程師的紀律」。
 
-在我的「摳頂人生」實戰中，自從引入了 Geoffrey Huntley 的 Ralph Loop 邏輯，我不再需要手動幫 AI 收尾。我只需要定義好「成功的樣子」，然後看著那個天真又堅韌的 Ralph 幫我把程式碼修到完美。
+在我的「摳頂人生」實戰中，自從引入了 Ralph Loop 邏輯，我不再需要手動幫 AI 收尾。我只需要定義好「成功的樣子」，然後看著那個天真又堅韌的 Ralph 幫我把程式碼修到完美。
 
 下次當你的 AI 助理又想偷懶停下來時，試著對它說：「Hey, let's play Ralph Loop!」
 
