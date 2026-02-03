@@ -1,6 +1,6 @@
 ---
 title: "打破 Vibe Coding 的「斷頭」魔咒：深度解析 Ralph Loop 與自動化完工法則"
-date: 2026-02-03T22:10:00+08:00
+date: 2026-02-03T22:00:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "探討 Vibe Coding 最常見的痛點：AI 工具做到一半就停下來。本文將深入介紹由 Geoffrey Huntley 提出的 Ralph Loop 技術，解析其運作原理、辛普森家庭的命名由來，並詳述 Claude Ralph-Loop 的實戰用法。"
