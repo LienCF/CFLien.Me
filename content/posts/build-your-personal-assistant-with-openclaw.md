@@ -1,6 +1,6 @@
 ---
 title: "Step-by-Step：從零打造你的 OpenClaw 個人 AI 助理"
-date: 2026-02-03T20:45:00+08:00
+date: 2026-02-03T18:45:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "這是一篇完整的 OpenClaw 安裝與配置教學，帶你從環境準備到建立具備『三層防線』備援機制的個人助理"

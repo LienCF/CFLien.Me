@@ -1,6 +1,6 @@
 ---
 title: "深度探討 2026 開發範式：當 Detroit School TDD、BDD、SDD 遇上 Vibe Coding"
-date: 2026-02-03T21:10:00+08:00
+date: 2026-02-03T19:10:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "這是一篇萬字長文（誇張法），深入剖析傳統軟體工程嚴謹的方法論如何成為現代 AI 輔助開發（Vibe Coding）的穩壓器。我們將從測試、行為、規格三個維度，重新定義 SRE 等級的開發流程。"
