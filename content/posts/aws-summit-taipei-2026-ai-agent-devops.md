@@ -4,6 +4,7 @@ date: 2026-07-17T15:20:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "整理 AWS Summit Taipei 2026 的 Keynote 與 Workshop 重點，從 Amazon Quick、Kiro CLI、EKS Auto Mode 到 AWS DevOps Agent，分析 AI Agent 對 DevOps、平台工程與維運工作的實際影響。"
+url: "/2026/07/aws-summit-taipei-2026-ai-agent-devops/"
 tags: ["AWS", "AWS Summit", "AI Agent", "DevOps", "SRE", "Kubernetes", "Amazon EKS", "Kiro"]
 categories: ["tech"]
 ---
