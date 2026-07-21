@@ -12,7 +12,7 @@ cd CFLien.Me
 hugo server
 ```
 
-網站使用 Hugo Extended，CI 會同時驗證 Cloudflare 目前使用的 0.148.0 與建議版本 0.164.0。搜尋由 LoveIt 內建的 Lunr 索引提供，不需要 Node.js、Algolia 或其他外部搜尋服務。
+網站與 Cloudflare Pages 統一使用 Hugo Extended 0.164.0。搜尋由 LoveIt 內建的 Lunr 2.3.9 與 lunr-languages 1.20.0 索引提供，不需要 Node.js、Algolia 或其他外部搜尋服務。
 
 ## 驗證
 

@@ -1,0 +1,8 @@
+{{- $id := .Get 0 -}}
+{{- if not $id -}}
+    {{- errorf "The %q shortcode requires a post ID. See %s" .Name .Position -}}
+{{- end -}}
+<blockquote class="twitter-tweet">
+    <a href="https://x.com/i/status/{{ $id | safeURL }}"></a>
+</blockquote>
+<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>

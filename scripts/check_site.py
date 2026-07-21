@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import posixpath
@@ -18,7 +19,22 @@ from urllib.parse import unquote, urlsplit
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SITE_TITLE = "工程師的摳頂人生"
 HUGO_BIN = os.environ.get("CFLIEN_HUGO_BIN", "hugo")
+HUGO_VERSION = "0.164.0"
 SENSITIVE_SETTING = "ALGOLIA_" + "ADMIN_KEY"
+LOVEIT_VERSION = "v0.3.1"
+LOVEIT_COMMIT = "0349869aa8aa8a09ca44c648da7a31618d45cc1d"
+FONTAWESOME_VERSION = "7.3.1"
+TYPEIT_VERSION = "8.8.7"
+SIMPLE_ICONS_VERSION = "16.27.0"
+LUNR_LANGUAGES_VERSION = "1.20.0"
+LUNR_LANGUAGE_HASHES = {
+    "assets/lib/lunr/lunr.stemmer.support.js": (
+        "4b4c8cc2fd10dc37e4b33b57fc73659f8df833803c7d04bd84e53f01b16add86"
+    ),
+    "assets/lib/lunr/lunr.zh.js": (
+        "25df40afa6898ca07982f7f29039a6698984fc544eb94702a2f1174924fbb882"
+    ),
+}
 
 
 class LinkCollector(HTMLParser):
@@ -107,6 +123,66 @@ def verify_repository() -> None:
     search = language.get("params", {}).get("search", {})
     require(search.get("type") == "lunr", "Lunr search is not enabled")
 
+    hugo_version_output = subprocess.run(
+        [HUGO_BIN, "version"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    require(
+        f"hugo v{HUGO_VERSION}" in hugo_version_output,
+        f"Hugo {HUGO_VERSION} is required",
+    )
+
+    theme_commit = subprocess.run(
+        ["git", "-C", "themes/LoveIt", "rev-parse", "HEAD"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    require(
+        theme_commit == LOVEIT_COMMIT,
+        f"LoveIt {LOVEIT_VERSION} is not checked out",
+    )
+
+    mermaid_override = (
+        REPO_ROOT / "layouts/_default/_markup/render-codeblock-mermaid.html"
+    )
+    require(
+        mermaid_override.exists(),
+        "Hugo-compatible Mermaid code block renderer is missing",
+    )
+    goat_override = REPO_ROOT / "layouts/_default/_markup/render-codeblock-goat.html"
+    require(
+        goat_override.exists(),
+        "Hugo-compatible Goat code block renderer is missing",
+    )
+    term_feed_override = REPO_ROOT / "layouts/term.rss.xml"
+    require(term_feed_override.exists(), "Hugo-compatible term feed is missing")
+    term_feed_text = term_feed_override.read_text()
+    require(
+        ".Site.Language.Locale" in term_feed_text,
+        "term feed does not use the current Hugo language API",
+    )
+    require(
+        ".Site.LanguageCode" not in term_feed_text,
+        "term feed still uses the deprecated Hugo language API",
+    )
+
+    cdn_data_text = (REPO_ROOT / "assets/data/cdn/jsdelivr.yml").read_text()
+    require(
+        f"simple-icons@{SIMPLE_ICONS_VERSION}" in cdn_data_text,
+        "current Simple Icons release is not configured",
+    )
+    for relative_path, expected_hash in LUNR_LANGUAGE_HASHES.items():
+        actual_hash = hashlib.sha256((REPO_ROOT / relative_path).read_bytes()).hexdigest()
+        require(
+            actual_hash == expected_hash,
+            f"{relative_path} is not from lunr-languages {LUNR_LANGUAGES_VERSION}",
+        )
+
 
 def output_path_for_url(build_dir: Path, source_html: Path, link: str) -> Path | None:
     parsed = urlsplit(link)
@@ -180,6 +256,19 @@ def verify_generated_site() -> None:
         index_html = (build_dir / "index.html").read_text()
         require(f"<title>{SITE_TITLE}" in index_html, "generated title is not branded")
         require("lunr.min.js" in index_html, "Lunr client script is not loaded")
+        require(
+            "lunr.stemmer.support.min.js" in index_html,
+            "Lunr language stemmer support is not loaded",
+        )
+        require("lunr.zh.min.js" in index_html, "Lunr Chinese language support is not loaded")
+        require(
+            f"@fortawesome/fontawesome-free@{FONTAWESOME_VERSION}" in index_html,
+            "current Font Awesome release is not loaded",
+        )
+        require(
+            f"typeit@{TYPEIT_VERSION}" in index_html,
+            "current TypeIt release is not loaded",
+        )
         require("algoliasearch" not in index_html.lower(), "Algolia client is still loaded")
         require(not (build_dir / "en").exists(), "English output remains")
         require(not (build_dir / "1/01/index.html").exists(), "stale /1/01 page remains")
