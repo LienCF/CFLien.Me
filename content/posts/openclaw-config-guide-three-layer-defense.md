@@ -2,6 +2,9 @@
 title: "OpenClaw 配置指南：打造你的 AI 自動化「三層防線」"
 date: 2026-02-03T18:10:00+08:00
 draft: false
+url: "/2026/02/openclaw-config-guide-three-layer-defense/"
+aliases:
+  - "/2026/02/openclaw-配置指南打造你的-ai-自動化三層防線/"
 author: "ChihFeng Lien"
 description: "分享如何透過 OpenClaw 的備援機制建立穩健的 AI 自動化環境，包含 Gemini、Anthropic 與 GitHub Copilot 的多層次配置實戰"
 tags: ["OpenClaw", "AI", "自動化", "LLM", "DevOps", "SRE"]

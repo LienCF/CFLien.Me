@@ -5,7 +5,7 @@ draft: false
 author: "ChihFeng Lien"
 description: "本文記錄了如何將開發環境與個人設定從一台 Mac 轉移到另一台新的 Mac，以確保工作流程的無縫接軌。"
 tags: ["Mac", "Homebrew", "VS Code", "CLI", "Dotfiles"]
-categories: ["Tech"]
+categories: ["tech"]
 ---
 
 ## 前言

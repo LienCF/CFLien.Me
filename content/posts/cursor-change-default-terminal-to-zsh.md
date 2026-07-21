@@ -193,11 +193,11 @@ if [[ -n $CURSOR_TRACE_ID ]]; then
 fi
 ```
 
-詳細的問題分析和完整解決方案，請參考相關文章：[解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題](cursor-zsh-agent-command-detection-issue.md)
+詳細的問題分析和完整解決方案，請參考相關文章：[解決 Cursor Agent 在 Zsh 環境下無法偵測指令結束的問題]({{< ref "cursor-zsh-agent-command-detection-issue.md" >}})
 
 ## 參考資源
 
 - [Cursor 官方文件](https://cursor.sh/)
 - [Oh My Zsh 官網](https://ohmyz.sh/)
 - [Zsh 官方文件](https://zsh.sourceforge.io/)
-- [VS Code Terminal 設定指南](https://code.visualstudio.com/docs/terminal/profiles) 
+- [VS Code Terminal 設定指南](https://code.visualstudio.com/docs/terminal/profiles)

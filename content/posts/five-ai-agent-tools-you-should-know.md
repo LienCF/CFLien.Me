@@ -35,7 +35,7 @@ categories: ["tech"]
 
 **GitHub**：[gavrielc/nanoclaw](https://github.com/gavrielc/nanoclaw)
 
-如果你讀過我之前寫的 [OpenClaw 配置指南](/posts/openclaw-config-guide-three-layer-defense/)，應該知道 OpenClaw 是一個功能完整的 AI 自動化環境。NanoClaw 的定位很直接：**提供相同的核心功能，但程式碼量小到你能在 8 分鐘內讀完**。
+如果你讀過我之前寫的 [OpenClaw 配置指南]({{< ref "openclaw-config-guide-three-layer-defense.md" >}})，應該知道 OpenClaw 是一個功能完整的 AI 自動化環境。NanoClaw 的定位很直接：**提供相同的核心功能，但程式碼量小到你能在 8 分鐘內讀完**。
 
 它的架構是一個單一 Node.js 程序，走 WhatsApp 訊息進來、經 SQLite 儲存、在容器中執行 Claude Agent、再把結果傳回去。核心功能包括：
 
