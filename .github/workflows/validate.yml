@@ -24,7 +24,7 @@ jobs:
           submodules: recursive
 
       - name: Set up Hugo
-        uses: peaceiris/actions-hugo@v3.2.0
+        uses: peaceiris/actions-hugo@v3.2.1
         with:
           hugo-version: ${{ matrix.hugo-version }}
           extended: true
