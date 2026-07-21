@@ -4,6 +4,7 @@ date: 2026-02-08T10:00:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "介紹五個 2026 年值得關注的 AI Agent 相關工具，涵蓋語音複製、個人助手、免費模型路由與安全沙箱，適合想打造自己 AI 工具鏈的工程師"
+featuredImage: "/images/covers/five-ai-agent-tools-you-should-know.png"
 tags: ["AI", "Agent", "LLM", "開源", "工具推薦", "DevOps"]
 categories: ["tech"]
 ---

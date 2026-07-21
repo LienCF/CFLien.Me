@@ -4,6 +4,7 @@ date: 2026-02-03T19:10:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "這是一篇深入剖析傳統軟體工程嚴謹的方法論如何成為現代 AI 輔助開發（Vibe Coding）的穩壓器。我們將從測試、行為、規格三個維度，重新定義 SRE 等級的開發流程。"
+featuredImage: "/images/covers/tdd-bdd-sdd-vibe-coding-guide.png"
 tags: ["TDD", "Vibe Coding", "BDD", "SDD", "軟體架構", "DevOps", "SRE"]
 categories: ["tech"]
 ---

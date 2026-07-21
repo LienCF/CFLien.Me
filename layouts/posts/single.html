@@ -70,7 +70,7 @@
         {{- end -}}
         {{- with $image -}}
             <div class="featured-image">
-                {{- dict "Src" . "Title" $.Description "Resources" $.Resources | partial "plugin/img.html" -}}
+                {{- dict "Src" . "Title" $.Description "Resources" $.Resources | partial "cover-image.html" -}}
             </div>
         {{- end -}}
 
@@ -98,4 +98,4 @@
         {{- /* Comment */ -}}
         {{- partial "comment.html" . -}}
     </article>
-{{- end -}} 
+{{- end -}}

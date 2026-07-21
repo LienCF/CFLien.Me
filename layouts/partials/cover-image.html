@@ -1,0 +1,11 @@
+{{- $extension := path.Ext .Src -}}
+{{- if eq $extension ".png" -}}
+    {{- $base := strings.TrimSuffix $extension .Src -}}
+    <picture>
+        <source type="image/avif" data-srcset="{{ printf "%s.avif" $base | safeURL }}">
+        <source type="image/webp" data-srcset="{{ printf "%s.webp" $base | safeURL }}">
+        {{- partial "plugin/img.html" . -}}
+    </picture>
+{{- else -}}
+    {{- partial "plugin/img.html" . -}}
+{{- end -}}

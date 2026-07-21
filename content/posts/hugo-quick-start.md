@@ -4,6 +4,7 @@ date: 2024-06-26T19:30:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "學習如何使用 Hugo 靜態網站產生器建立你的第一個網站"
+featuredImage: "/images/covers/hugo-quick-start.png"
 tags: ["Hugo", "靜態網站", "教學"]
 categories: ["documentation"]
 ---
@@ -245,4 +246,4 @@ Hugo 是一個功能強大且易於使用的靜態網站產生器。透過這個
 
 ---
 
-有任何問題歡迎在留言區討論！ 
+有任何問題歡迎在留言區討論！

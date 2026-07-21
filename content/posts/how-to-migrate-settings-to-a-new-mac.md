@@ -4,6 +4,7 @@ date: 2024-05-22T10:00:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "本文記錄了如何將開發環境與個人設定從一台 Mac 轉移到另一台新的 Mac，以確保工作流程的無縫接軌。"
+featuredImage: "/images/covers/how-to-migrate-settings-to-a-new-mac.png"
 tags: ["Mac", "Homebrew", "VS Code", "CLI", "Dotfiles"]
 categories: ["tech"]
 ---

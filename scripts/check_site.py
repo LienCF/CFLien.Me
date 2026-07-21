@@ -8,6 +8,7 @@ import json
 import os
 import posixpath
 import re
+import struct
 import subprocess
 import tempfile
 import tomllib
@@ -26,6 +27,7 @@ LOVEIT_COMMIT = "0349869aa8aa8a09ca44c648da7a31618d45cc1d"
 FONTAWESOME_VERSION = "7.3.1"
 TYPEIT_VERSION = "8.8.7"
 SIMPLE_ICONS_VERSION = "16.27.0"
+EMOJI_DATASOURCE_GOOGLE_VERSION = "16.0.0"
 LUNR_LANGUAGES_VERSION = "1.20.0"
 LUNR_LANGUAGE_HASHES = {
     "assets/lib/lunr/lunr.stemmer.support.js": (
@@ -35,6 +37,67 @@ LUNR_LANGUAGE_HASHES = {
         "25df40afa6898ca07982f7f29039a6698984fc544eb94702a2f1174924fbb882"
     ),
 }
+
+
+def post_cover_urls() -> dict[str, str]:
+    covers: dict[str, str] = {}
+    for post_path in sorted((REPO_ROOT / "content/posts").glob("*.md")):
+        post_text = post_path.read_text()
+        match = re.search(
+            r'''^featuredImage:\s*["']?([^"']+)["']?\s*$''',
+            post_text,
+            re.MULTILINE,
+        )
+        require(match is not None, f"{post_path.name} has no featured image")
+        cover_url = match.group(1)
+        expected_url = f"/images/covers/{post_path.stem}.png"
+        require(
+            cover_url == expected_url,
+            f"{post_path.name} uses an unexpected featured image",
+        )
+        cover_path = REPO_ROOT / "static" / cover_url.lstrip("/")
+        require(cover_path.is_file(), f"{post_path.name} cover image is missing")
+        require(cover_path.stat().st_size > 0, f"{post_path.name} cover image is empty")
+        png_header = cover_path.read_bytes()[:24]
+        require(
+            png_header.startswith(b"\x89PNG\r\n\x1a\n") and len(png_header) == 24,
+            f"{post_path.name} cover image is not a valid PNG",
+        )
+        width, height = struct.unpack(">II", png_header[16:24])
+        require(
+            width >= 1200 and height >= 630 and width / height >= 1.8,
+            f"{post_path.name} cover image is not a high-resolution landscape image",
+        )
+        for extension in (".avif", ".webp"):
+            variant_path = cover_path.with_suffix(extension)
+            require(
+                variant_path.is_file(),
+                f"{post_path.name} {extension[1:].upper()} cover image is missing",
+            )
+            require(
+                0 < variant_path.stat().st_size < cover_path.stat().st_size,
+                f"{post_path.name} {extension[1:].upper()} cover is not optimized",
+            )
+            variant_header = variant_path.read_bytes()[:32]
+            if extension == ".avif":
+                require(
+                    b"ftypavif" in variant_header,
+                    f"{post_path.name} cover image is not a valid AVIF",
+                )
+            else:
+                require(
+                    variant_header.startswith(b"RIFF")
+                    and variant_header[8:12] == b"WEBP",
+                    f"{post_path.name} cover image is not a valid WebP",
+                )
+        covers[post_path.name] = cover_url
+
+    require(covers, "no blog posts were found")
+    require(
+        len(set(covers.values())) == len(covers),
+        "blog posts do not have unique cover images",
+    )
+    return covers
 
 
 class LinkCollector(HTMLParser):
@@ -122,6 +185,7 @@ def verify_repository() -> None:
     require(language.get("label") == "正體中文", "language label is not current")
     search = language.get("params", {}).get("search", {})
     require(search.get("type") == "lunr", "Lunr search is not enabled")
+    post_cover_urls()
 
     hugo_version_output = subprocess.run(
         [HUGO_BIN, "version"],
@@ -269,6 +333,38 @@ def verify_generated_site() -> None:
             f"typeit@{TYPEIT_VERSION}" in index_html,
             "current TypeIt release is not loaded",
         )
+        require(
+            any(
+                f"emoji-datasource-google@{EMOJI_DATASOURCE_GOOGLE_VERSION}"
+                in html_file.read_text(errors="ignore")
+                for html_file in build_dir.rglob("*.html")
+            ),
+            "current Google emoji data release is not loaded",
+        )
+        generated_html = "\n".join(
+            html_file.read_text(errors="ignore")
+            for html_file in build_dir.rglob("*.html")
+        )
+        require("<picture>" in generated_html, "optimized cover picture is not rendered")
+        require(
+            re.search(r'''type=["']?image/avif''', generated_html) is not None,
+            "AVIF cover source is not rendered",
+        )
+        require(
+            re.search(r'''type=["']?image/webp''', generated_html) is not None,
+            "WebP cover source is not rendered",
+        )
+        for post_name, cover_url in post_cover_urls().items():
+            require(
+                cover_url in generated_html,
+                f"{post_name} cover image is not rendered",
+            )
+            cover_base_url = cover_url.removesuffix(".png")
+            for extension in (".avif", ".webp"):
+                require(
+                    f"{cover_base_url}{extension}" in generated_html,
+                    f"{post_name} {extension[1:].upper()} cover is not rendered",
+                )
         require("algoliasearch" not in index_html.lower(), "Algolia client is still loaded")
         require(not (build_dir / "en").exists(), "English output remains")
         require(not (build_dir / "1/01/index.html").exists(), "stale /1/01 page remains")

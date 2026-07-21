@@ -4,6 +4,7 @@ date: 2024-12-26T15:00:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "詳細分析並解決 Cursor Agent 在 zsh 環境下執行指令後卡住、需要手動 Skip 且出現 'command not found: q' 錯誤的問題"
+featuredImage: "/images/covers/cursor-zsh-agent-command-detection-issue.png"
 tags: ["Cursor", "Zsh", "Oh My Zsh", "Powerlevel10k", "Terminal", "Debug"]
 categories: ["tech"]
 ---
@@ -304,4 +305,4 @@ fi
 - [Cursor Agent Terminal Commands Issue](https://forum.cursor.com/t/bug-ai-assistant-terminal-commands-never-auto-complete/101844)
 - [Zsh Command Not Found: q](https://forum.cursor.com/t/zsh-command-not-found-q/101502)
 - [Oh My Zsh Configuration Guide](https://github.com/ohmyzsh/ohmyzsh)
-- [Powerlevel10k Documentation](https://github.com/romkatv/powerlevel10k) 
+- [Powerlevel10k Documentation](https://github.com/romkatv/powerlevel10k)

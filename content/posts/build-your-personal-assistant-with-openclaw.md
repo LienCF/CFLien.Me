@@ -4,6 +4,7 @@ date: 2026-02-03T18:45:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "紀錄我如何利用 OpenClaw 建立一個具備長期記憶、主動監控與跨平台備援能力的個人 AI 執行助理"
+featuredImage: "/images/covers/build-your-personal-assistant-with-openclaw.png"
 tags: ["OpenClaw", "AI Agent", "自動化", "SRE", "個人生產力"]
 categories: ["tech"]
 ---

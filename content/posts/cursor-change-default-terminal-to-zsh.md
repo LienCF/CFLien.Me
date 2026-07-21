@@ -4,6 +4,7 @@ date: 2024-12-26T14:30:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "詳細教學如何在 Cursor 編輯器中設定 Zsh 為預設整合終端，告別 PowerShell"
+featuredImage: "/images/covers/cursor-change-default-terminal-to-zsh.png"
 tags: ["Cursor", "Zsh", "Terminal", "CLI", "Mac"]
 categories: ["tech"]
 ---

@@ -4,6 +4,7 @@ date: 2025-06-26T22:45:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "完整教學如何使用 Docker Compose 在自己的伺服器上架設 n8n 自動化工作流程平台，包含 PostgreSQL 資料庫設定、反向代理、SSL 憑證等"
+featuredImage: "/images/covers/self-hosting-n8n-with-docker-compose.png"
 tags: ["n8n", "Docker", "Docker Compose", "自動化", "工作流程", "self-hosting"]
 categories: ["tech"]
 ---
@@ -453,4 +454,4 @@ postgres:
 
 ---
 
-*想了解更多自架服務相關內容，歡迎關注我的部落格後續文章！* 
+*想了解更多自架服務相關內容，歡迎關注我的部落格後續文章！*

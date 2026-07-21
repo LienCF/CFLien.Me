@@ -4,6 +4,7 @@ date: 2026-02-03T22:15:00+08:00
 draft: false
 author: "ChihFeng Lien"
 description: "探討 Vibe Coding 最常見的痛點：AI 工具做到一半就停下來。本文將深入介紹由 Geoffrey Huntley 提出的 Ralph Loop 技術，包含 Anthropic 官方插件的實戰用法、辛普森家庭的命名由來，以及如何寫出不讓 AI 偷懶的 Prompt。"
+featuredImage: "/images/covers/vibe-coding-pain-points-and-ralph-loop.png"
 tags: ["Vibe Coding", "Ralph Loop", "Geoffrey Huntley", "Claude Code", "AI Agents", "自動化", "SRE"]
 categories: ["tech"]
 ---
