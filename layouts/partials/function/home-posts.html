@@ -1,0 +1,8 @@
+{{- /* Return the posts listed on the home page, mirroring LoveIt's layouts/index.html filter. */ -}}
+{{- $pages := where .Site.RegularPages "Type" "posts" -}}
+{{- if .Site.Params.page.hiddenFromHomePage -}}
+    {{- $pages = where $pages "Params.hiddenfromhomepage" false -}}
+{{- else -}}
+    {{- $pages = where $pages "Params.hiddenfromhomepage" "!=" true -}}
+{{- end -}}
+{{- return $pages -}}

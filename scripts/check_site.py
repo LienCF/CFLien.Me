@@ -14,7 +14,7 @@ import tempfile
 import tomllib
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import quote, unquote, urlsplit
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -22,6 +22,7 @@ SITE_TITLE = "工程師的摳頂人生"
 HUGO_BIN = os.environ.get("CFLIEN_HUGO_BIN", "hugo")
 HUGO_VERSION = "0.164.0"
 SENSITIVE_SETTING = "ALGOLIA_" + "ADMIN_KEY"
+PREVIEW_SUFFIX = "-preview"
 LOVEIT_VERSION = "v0.3.1"
 LOVEIT_COMMIT = "0349869aa8aa8a09ca44c648da7a31618d45cc1d"
 FONTAWESOME_VERSION = "7.3.1"
@@ -90,6 +91,19 @@ def post_cover_urls() -> dict[str, str]:
                     and variant_header[8:12] == b"WEBP",
                     f"{post_path.name} cover image is not a valid WebP",
                 )
+        for extension in (".avif", ".webp"):
+            preview_path = cover_path.with_name(
+                f"{cover_path.stem}{PREVIEW_SUFFIX}{extension}"
+            )
+            full_path = cover_path.with_suffix(extension)
+            require(
+                preview_path.is_file(),
+                f"{post_path.name} {extension[1:].upper()} preview cover is missing",
+            )
+            require(
+                0 < preview_path.stat().st_size < full_path.stat().st_size,
+                f"{post_path.name} {extension[1:].upper()} preview cover is not smaller than the full cover",
+            )
         covers[post_path.name] = cover_url
 
     require(covers, "no blog posts were found")
@@ -98,6 +112,20 @@ def post_cover_urls() -> dict[str, str]:
         "blog posts do not have unique cover images",
     )
     return covers
+
+
+def _front_matter_value(post_path: Path, key: str) -> str:
+    match = re.search(
+        rf"""^{key}:\s*["']?([^"'\n]+?)["']?\s*$""",
+        post_path.read_text(),
+        re.MULTILINE,
+    )
+    require(match is not None, f"{post_path.name} has no {key} in its front matter")
+    return match.group(1)
+
+
+def post_date(post_name: str) -> str:
+    return _front_matter_value(REPO_ROOT / "content/posts" / post_name, "date")
 
 
 class LinkCollector(HTMLParser):
@@ -365,6 +393,70 @@ def verify_generated_site() -> None:
                     f"{cover_base_url}{extension}" in generated_html,
                     f"{post_name} {extension[1:].upper()} cover is not rendered",
                 )
+        cover_urls = post_cover_urls()
+        newest_cover_url = cover_urls[max(cover_urls, key=post_date)]
+        newest_preview_avif = (
+            newest_cover_url.removesuffix(".png") + PREVIEW_SUFFIX + ".avif"
+        )
+        require(
+            newest_preview_avif in index_html,
+            "home page does not render the preview cover of the newest post",
+        )
+        require(
+            re.search(
+                r'<link[^>]*rel=["\']?preload["\']?[^>]*as=["\']?image["\']?[^>]*'
+                + re.escape(newest_preview_avif),
+                index_html,
+            )
+            is not None,
+            "home page does not preload its LCP cover image",
+        )
+        headers_path = build_dir / "_headers"
+        require(headers_path.is_file(), "Cloudflare Pages _headers file was not generated")
+        headers_text = headers_path.read_text()
+        require(
+            re.search(r"^/\n(?:  .*\n)*  Link: </css/style\.min\.css>; rel=preload; as=style", headers_text, re.M)
+            is not None,
+            "_headers does not preload the stylesheet for the home page",
+        )
+        require(
+            f"Link: <{newest_preview_avif}>; rel=preload; as=image; type=image/avif" in headers_text,
+            "_headers does not preload the newest post preview cover for the home page",
+        )
+        preloaded_posts = 0
+        for html_file in build_dir.rglob("index.html"):
+            html_text = html_file.read_text(errors="ignore")
+            if "<div class=featured-image>" not in html_text:
+                continue
+            preloaded_posts += 1
+            page_url = html_file.parent.relative_to(build_dir).as_posix()
+            page_url = f"/{page_url}/" if page_url != "." else "/"
+            preload = re.search(
+                r'<link[^>]*rel=["\']?preload["\']?[^>]*as=["\']?image["\']?[^>]*href=["\']?([^"\' >]+\.avif)',
+                html_text,
+            )
+            require(preload is not None, f"{page_url} does not preload its LCP cover image")
+            cover_avif = preload.group(1)
+            require(
+                cover_avif.endswith(".avif") and PREVIEW_SUFFIX not in cover_avif,
+                f"{page_url} preloads a preview cover instead of the full cover",
+            )
+            # Non-ASCII slugs must be present both percent-encoded and decoded.
+            for rule_path in {page_url, quote(page_url)}:
+                require(
+                    re.search(
+                        r"^" + re.escape(rule_path) + r"\n(?:  .*\n)*  Link: <" + re.escape(cover_avif)
+                        + r">; rel=preload; as=image; type=image/avif",
+                        headers_text,
+                        re.M,
+                    )
+                    is not None,
+                    f"_headers does not preload the cover of {rule_path}",
+                )
+        require(
+            preloaded_posts == len(cover_urls),
+            "not every post page renders a featured image with a preload",
+        )
         require("algoliasearch" not in index_html.lower(), "Algolia client is still loaded")
         require(not (build_dir / "en").exists(), "English output remains")
         require(not (build_dir / "1/01/index.html").exists(), "stale /1/01 page remains")

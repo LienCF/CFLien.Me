@@ -1,0 +1,18 @@
+{{- /* Preload the LCP cover so the browser discovers it before parsing the body. */ -}}
+{{- $preload := true -}}
+{{- if .IsHome -}}
+    {{- /* Only the first pager shows the newest post; reuse LoveIt's paginator arguments so the call is idempotent. */ -}}
+    {{- $pages := partial "function/home-posts.html" . -}}
+    {{- $paginator := "" -}}
+    {{- with .Site.Params.home.posts.paginate | default .Site.Params.paginate -}}
+        {{- $paginator = $.Paginate $pages . -}}
+    {{- else -}}
+        {{- $paginator = .Paginate $pages -}}
+    {{- end -}}
+    {{- $preload = eq $paginator.PageNumber 1 -}}
+{{- end -}}
+{{- if $preload -}}
+    {{- with partial "function/lcp-cover.html" . -}}
+<link rel="preload" as="image" href="{{ . | safeURL }}" type="image/avif" fetchpriority="high">
+    {{- end -}}
+{{- end -}}

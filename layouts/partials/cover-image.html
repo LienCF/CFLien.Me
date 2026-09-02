@@ -7,24 +7,33 @@
     Alt    - alt text
     Eager  - when true, render an eager, high priority image for the LCP
              candidate instead of a lazysizes placeholder
+    Preview - when true, use the 10:3 "-preview" AVIF/WebP variants sized for
+              the home page summary cards
 */ -}}
 {{- $src := .Src -}}
 {{- $alt := .Alt | default .Title | default $src -}}
 {{- $extension := path.Ext $src -}}
 {{- $width := .Width -}}
 {{- $height := .Height -}}
-{{- $staticPath := printf "static%s" $src -}}
-{{- if and (not $width) (fileExists $staticPath) -}}
-    {{- with imageConfig $staticPath -}}
+{{- $base := strings.TrimSuffix $extension $src -}}
+{{- $variantBase := $base -}}
+{{- if and .Preview (fileExists (printf "static%s-preview.webp" $base)) -}}
+    {{- $variantBase = printf "%s-preview" $base -}}
+{{- end -}}
+{{- $dimensionSource := printf "static%s" $src -}}
+{{- if ne $variantBase $base -}}
+    {{- $dimensionSource = printf "static%s.webp" $variantBase -}}
+{{- end -}}
+{{- if and (not $width) (fileExists $dimensionSource) -}}
+    {{- with imageConfig $dimensionSource -}}
         {{- $width = .Width -}}
         {{- $height = .Height -}}
     {{- end -}}
 {{- end -}}
 {{- $imgArgs := dict "Src" $src "Title" .Title "Alt" $alt "Width" $width "Height" $height -}}
 {{- if eq $extension ".png" -}}
-    {{- $base := strings.TrimSuffix $extension $src -}}
-    {{- $avif := printf "%s.avif" $base -}}
-    {{- $webp := printf "%s.webp" $base -}}
+    {{- $avif := printf "%s.avif" $variantBase -}}
+    {{- $webp := printf "%s.webp" $variantBase -}}
     <picture>
         {{- if .Eager -}}
         <source type="image/avif" srcset="{{ $avif | safeURL }}">

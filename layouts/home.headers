@@ -1,0 +1,25 @@
+{{- /* Cloudflare Pages _headers: Link preloads that Cloudflare turns into 103 Early Hints. */ -}}
+{{- $stylesheet := "Link: </css/style.min.css>; rel=preload; as=style" -}}
+/
+  {{ $stylesheet }}
+{{- with partial "function/lcp-cover.html" . }}
+  Link: <{{ . }}>; rel=preload; as=image; type=image/avif
+{{- end }}
+{{ range where .Site.RegularPages "Type" "posts" -}}
+{{- $post := . -}}
+{{- with partial "function/lcp-cover.html" . -}}
+{{- $cover := . -}}
+{{- /* Non-ASCII slugs: emit the percent-encoded and the decoded path, only one of them matches a request. */ -}}
+{{- $paths := slice $post.RelPermalink -}}
+{{- with (urls.Parse $post.Permalink).Path -}}
+    {{- if ne . $post.RelPermalink -}}
+        {{- $paths = $paths | append . -}}
+    {{- end -}}
+{{- end -}}
+{{- range $paths }}
+{{ . }}
+  {{ $stylesheet }}
+  Link: <{{ $cover }}>; rel=preload; as=image; type=image/avif
+{{ end -}}
+{{- end -}}
+{{- end }}

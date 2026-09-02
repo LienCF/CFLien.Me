@@ -1,0 +1,6 @@
+{{- /* Return the first post rendered on the home page; its cover is the home LCP candidate. */ -}}
+{{- $newest := "" -}}
+{{- with index (partial "function/home-posts.html" .) 0 -}}
+    {{- $newest = . -}}
+{{- end -}}
+{{- return $newest -}}

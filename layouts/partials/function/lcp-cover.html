@@ -1,0 +1,24 @@
+{{- /*
+  Return the AVIF cover URL that is the LCP candidate for the given page, or "".
+  Home page: 10:3 preview of the newest post. Post page: its full featured image.
+*/ -}}
+{{- $cover := "" -}}
+{{- if .IsHome -}}
+    {{- with partial "function/home-newest-post.html" . -}}
+        {{- with .Params.featuredimage -}}
+            {{- if eq (path.Ext .) ".png" -}}
+                {{- $cover = printf "%s-preview.avif" (strings.TrimSuffix ".png" .) -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+{{- else if and .IsPage (eq .Type "posts") -}}
+    {{- with .Params.featuredimage -}}
+        {{- if eq (path.Ext .) ".png" -}}
+            {{- $cover = printf "%s.avif" (strings.TrimSuffix ".png" .) -}}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+{{- if and $cover (not (fileExists (printf "static%s" $cover))) -}}
+    {{- $cover = "" -}}
+{{- end -}}
+{{- return $cover -}}

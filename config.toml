@@ -716,10 +716,20 @@ enableEmoji = true
   isPlainText = true
   isHTML = false
 
+# Cloudflare Pages "_headers" file with Early Hints preloads, rendered from layouts/home.headers
+[mediaTypes."text/cloudflare-headers"]
+  suffixes = [""]
+  delimiter = ""
+[outputFormats.HEADERS]
+  mediaType = "text/cloudflare-headers"
+  baseName = "_headers"
+  isPlainText = true
+  notAlternative = true
+
 # Options to make hugo output files
 # 用于 Hugo 输出文档的设置
 [outputs]
-  home = ["HTML", "RSS", "JSON"]
+  home = ["HTML", "RSS", "JSON", "HEADERS"]
   page = ["HTML", "MarkDown"]
   section = ["HTML", "RSS"]
   taxonomy = ["HTML", "RSS"]

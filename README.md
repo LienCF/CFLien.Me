@@ -41,3 +41,9 @@ Cloudflare Pages 專案使用以下設定：
 | Environment variable | `HUGO_VERSION=0.164.0` |
 
 `public/` 與 `resources/_gen/` 都是建置產生物，不應提交到 Git。
+
+## 封面圖與 LCP
+
+- 每篇文章的封面放在 `static/images/covers/<slug>.png`，執行 `zsh scripts/optimize_covers.zsh` 會產生 `.avif`、`.webp`，以及首頁摘要卡用的 10:3 裁切版 `-preview.avif`、`-preview.webp`（1300×390）。既有輸出會保留，加 `--force` 才會全部重新編碼。
+- 文章頁與首頁最新一篇的封面以 eager 方式載入並在 `<head>` 預載，其餘封面維持 lazyload。
+- Hugo 會從 `layouts/home.headers` 產生 Cloudflare Pages 的 `_headers`，為首頁與每篇文章加上 stylesheet 與封面圖的 `Link: rel=preload`，Cloudflare 會據此送出 103 Early Hints。
