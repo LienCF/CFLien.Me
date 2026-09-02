@@ -70,7 +70,7 @@
         {{- end -}}
         {{- with $image -}}
             <div class="featured-image">
-                {{- dict "Src" . "Title" $.Description "Resources" $.Resources | partial "cover-image.html" -}}
+                {{- dict "Src" . "Title" $.Description "Alt" $.Title "Eager" true "Resources" $.Resources | partial "cover-image.html" -}}
             </div>
         {{- end -}}
 

@@ -1,0 +1,9 @@
+// Eager cover images skip lazysizes, so they never get the `.lazyloaded` class
+// that the theme relies on for sizing. Mirror those rules here.
+.featured-image-preview img.cover-eager {
+  @include object-fit(cover);
+}
+
+.featured-image img.cover-eager {
+  width: 100%;
+}

@@ -1,0 +1,11 @@
+{{- /* Eager avatar for the home page header; it is above the fold, so lazy loading only delays paint. */ -}}
+{{- $alt := .Alt | default .Src | plainify -}}
+<img
+    class="cover-eager"
+    src="{{ .Src | safeURL }}"
+    alt="{{ $alt }}"
+    title="{{ $alt }}"
+    width="240"
+    height="240"
+    fetchpriority="high"
+    decoding="async" />

@@ -1,11 +1,49 @@
-{{- $extension := path.Ext .Src -}}
+{{- /*
+  Render a post cover image.
+
+  Input dict keys:
+    Src    - cover URL under static/ (PNG covers also get AVIF/WebP sources)
+    Title  - title attribute
+    Alt    - alt text
+    Eager  - when true, render an eager, high priority image for the LCP
+             candidate instead of a lazysizes placeholder
+*/ -}}
+{{- $src := .Src -}}
+{{- $alt := .Alt | default .Title | default $src -}}
+{{- $extension := path.Ext $src -}}
+{{- $width := .Width -}}
+{{- $height := .Height -}}
+{{- $staticPath := printf "static%s" $src -}}
+{{- if and (not $width) (fileExists $staticPath) -}}
+    {{- with imageConfig $staticPath -}}
+        {{- $width = .Width -}}
+        {{- $height = .Height -}}
+    {{- end -}}
+{{- end -}}
+{{- $imgArgs := dict "Src" $src "Title" .Title "Alt" $alt "Width" $width "Height" $height -}}
 {{- if eq $extension ".png" -}}
-    {{- $base := strings.TrimSuffix $extension .Src -}}
+    {{- $base := strings.TrimSuffix $extension $src -}}
+    {{- $avif := printf "%s.avif" $base -}}
+    {{- $webp := printf "%s.webp" $base -}}
     <picture>
-        <source type="image/avif" data-srcset="{{ printf "%s.avif" $base | safeURL }}">
-        <source type="image/webp" data-srcset="{{ printf "%s.webp" $base | safeURL }}">
-        {{- partial "plugin/img.html" . -}}
+        {{- if .Eager -}}
+        <source type="image/avif" srcset="{{ $avif | safeURL }}">
+        <source type="image/webp" srcset="{{ $webp | safeURL }}">
+        <img
+            class="cover-eager"
+            src="{{ $src | safeURL }}"
+            alt="{{ $alt }}"
+            title="{{ .Title | default $alt }}"
+            {{- with $width }} width="{{ . }}"{{ end }}
+            {{- with $height }} height="{{ . }}"{{ end }}
+            fetchpriority="high"
+            decoding="async" />
+        {{- else -}}
+        <source type="image/avif" data-srcset="{{ $avif | safeURL }}">
+        <source type="image/webp" data-srcset="{{ $webp | safeURL }}">
+        {{- partial "plugin/img.html" $imgArgs -}}
+        {{- end -}}
     </picture>
 {{- else -}}
-    {{- partial "plugin/img.html" . -}}
+    {{- partial "plugin/img.html" $imgArgs -}}
 {{- end -}}

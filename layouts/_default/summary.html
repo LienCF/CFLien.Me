@@ -9,10 +9,19 @@
     {{- with .Resources.GetMatch "featured-image-preview" -}}
         {{- $image = .RelPermalink -}}
     {{- end -}}
+    {{- /* The newest post sits at the top of the home page, so its cover is the LCP candidate. */ -}}
+    {{- $homePosts := where .Site.RegularPages "Type" "posts" -}}
+    {{- $homePosts = where $homePosts "Params.hiddenfromhomepage" "!=" true -}}
+    {{- $eager := false -}}
+    {{- with index $homePosts 0 -}}
+        {{- if eq .RelPermalink $.RelPermalink -}}
+            {{- $eager = true -}}
+        {{- end -}}
+    {{- end -}}
     {{- with $image -}}
         <div class="featured-image-preview">
             <a href="{{ $.RelPermalink }}">
-                {{- dict "Src" . "Title" $.Description "Resources" $.Resources | partial "cover-image.html" -}}
+                {{- dict "Src" . "Title" $.Description "Alt" $.Title "Eager" $eager "Resources" $.Resources | partial "cover-image.html" -}}
             </a>
         </div>
     {{- end -}}
