@@ -239,6 +239,20 @@ def verify_repository() -> None:
         f"LoveIt {LOVEIT_VERSION} is not checked out",
     )
 
+    middleware_path = REPO_ROOT / "functions/_middleware.js"
+    require(middleware_path.is_file(), "pages.dev redirect middleware is missing")
+    require(
+        ".pages.dev" in middleware_path.read_text() and "301" in middleware_path.read_text(),
+        "pages.dev redirect middleware does not redirect pages.dev permanently",
+    )
+    subprocess.run(
+        ["node", str(REPO_ROOT / "scripts/test_pages_dev_redirect.mjs")],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
     mermaid_override = (
         REPO_ROOT / "layouts/_default/_markup/render-codeblock-mermaid.html"
     )

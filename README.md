@@ -42,6 +42,10 @@ Cloudflare Pages 專案使用以下設定：
 
 `public/` 與 `resources/_gen/` 都是建置產生物，不應提交到 Git。
 
+## pages.dev 導向
+
+`functions/_middleware.js` 是 Cloudflare Pages Function，會把 `cflien-me.pages.dev` 與各次部署的 `*.cflien-me.pages.dev` 以 301 導向 `https://cflien.me`，避免重複內容被索引，也避免掃描器流量被算進網站分析。行為測試在 `scripts/test_pages_dev_redirect.mjs`，`check_site.py` 會一併執行。注意這也會讓分支預覽部署導回正式站。
+
 ## 封面圖與 LCP
 
 - 每篇文章的封面放在 `static/images/covers/<slug>.png`，執行 `zsh scripts/optimize_covers.zsh` 會產生 `.avif`、`.webp`，以及首頁摘要卡用的 10:3 裁切版 `-preview.avif`、`-preview.webp`（1300×390）。既有輸出會保留，加 `--force` 才會全部重新編碼。
